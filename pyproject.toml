@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dtbagging"
+version = "1.0.0"
+description = "Federated Learning con XGBoost e Flower"
+license = "Apache-2.0"
+dependencies = [
+    "flwr[simulation]>=1.13.0",
+    "pandas>=2.0.0",
+    "xgboost>=2.0.0,<3.0.0",
+    "scikit-learn>=1.3.0",
+    "numpy>=1.24.0"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["dtbagging"]
+
+[tool.flwr.app]
+publisher = "bsusanna"
+
+[tool.flwr.app.components]
+serverapp = "dtbagging.server_app:app"
+clientapp = "dtbagging.client_app:app"
+
+[tool.flwr.app.config]
+train-method = "bagging"
+num-server-rounds = 10
+fraction-train = 1.0
+fraction-evaluate = 1.0
+local-epochs = 1
+test-fraction = 0.2
+seed = 42
+
+# Parametri XGBoost
+params.objective = "reg:squarederror"
+params.eta = 0.1
+params.max-depth = 6
+params.min_child_weight = 1
+params.subsample = 0.8
+params.colsample_bytree = 0.8
+params.tree-method = "hist"
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+options.num-supernodes = 9
