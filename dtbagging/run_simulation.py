@@ -7,8 +7,12 @@ def run_simulation():
     """Esegue la simulazione Flower."""
     print("🚀 Avvio simulazione Federated Learning...")
     
+    # Ottieni la directory del progetto (quella con pyproject.toml)
+    project_dir = os.path.join(os.path.dirname(__file__), "..")
+    project_dir = os.path.abspath(project_dir)
+    
     # Usa il comando flwr dal virtual environment
-    venv_bin = os.path.join(os.path.dirname(__file__), "..", "flvenv", "bin")
+    venv_bin = os.path.join(project_dir, "flvenv", "bin")
     flwr_path = os.path.join(venv_bin, "flwr")
     
     # Aggiungi la directory bin del venv al PATH
@@ -19,7 +23,7 @@ def run_simulation():
         subprocess.run([
             flwr_path, "run", ".",
             "--run-config", 'train-method="bagging" num-server-rounds=10'
-        ], check=True, env=env)
+        ], check=True, env=env, cwd=project_dir)
         
         print("\n✅ Simulazione completata!")
         
