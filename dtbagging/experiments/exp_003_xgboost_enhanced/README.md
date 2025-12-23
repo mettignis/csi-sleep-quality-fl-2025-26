@@ -54,9 +54,9 @@ Training RMSE: 0.00 (perfetto fit sui dati di training)
 
 | Esperimento | Min | Max | Mean | Std | Kaggle Score |
 |------------|-----|-----|------|-----|--------------|
-| exp_001 (XGBoost baseline) | 62.21 | 88.24 | 75.12 | 4.41 | **12.74541** |
+| exp_001 (XGBoost baseline) | 62.21 | 88.24 | 75.12 | 4.41 | **12.74541** ✅ |
 | exp_002 (Random Forest) | 66.58 | 79.00 | 72.90 | 2.32 | 12.95967 |
-| **exp_003 (XGBoost enhanced)** | 51.10 | 92.99 | 77.74 | 6.58 | **TBD** |
+| **exp_003 (XGBoost enhanced)** | 51.10 | 92.99 | 77.74 | 6.58 | **14.46567** ❌ |
 
 ## File Prodotti
 
@@ -76,11 +76,35 @@ Training RMSE: 0.00 (perfetto fit sui dati di training)
 - Range più ampio potrebbe essere positivo se cattura valori estremi reali
 - Std più alta: può essere meglio se RF era troppo conservativo (std 2.32)
 
-### Da verificare su Kaggle
-- **Target score da battere:** 10.72650
-- **Baseline exp_001:** 12.74541 (gap di 2.02 punti)
-- **Obiettivo:** Score < 12.74541
+### Risultato Kaggle
+- **Score ottenuto:** 14.46567 ❌
+- **Baseline exp_001:** 12.74541 
+- **Peggioramento:** +1.72 punti (13.6% peggio)
 
 ---
 
-**Status:** ⏳ Modello pronto, in attesa di submission Kaggle
+## ❌ POST-MORTEM: Perché ha fallito?
+
+### Problema: OVERFITTING SEVERO
+1. **Train RMSE = 0.00** → Memorizzazione perfetta dei dati di training
+2. **Test RMSE alto** → Scarsa generalizzazione
+3. **Range troppo ampio** (51-93) → Predizioni estreme non realistiche
+
+### Cause
+- **Troppi alberi (6000)** senza regolarizzazione adeguata
+- **Learning rate alto (0.3)** → apprendimento troppo aggressivo
+- **Nessun controllo overfitting** (min_child_weight=1)
+
+### Lezione appresa
+✅ **Più parametri ≠ Modello migliore**  
+✅ **Regolarizzazione è fondamentale** su dataset piccoli (697 campioni)  
+✅ **Train RMSE = 0.00 è red flag** → Overfitting garantito
+
+### Soluzione: Esperimento 004
+- Learning rate ↓ (0.3 → 0.1)
+- Max depth ↑ (6 → 8) + regolarizzazione
+- Min child weight ↑ (1 → 3)
+
+---
+
+**Status:** ❌ Esperimento fallito - Non usare questo modello
