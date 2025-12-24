@@ -1,60 +1,60 @@
 # 🌸 Sleep Quality Federated Learning
 
-Progetto di **Federated Learning** per la predizione della qualità del sonno utilizzando dati biometrici distribuiti tra più client.
+A **Federated Learning** project for predicting sleep quality using biometric data distributed across multiple clients.
 
-Il sistema utilizza **XGBoost** come modello di machine learning e **Flower** come framework di federazione, permettendo il training collaborativo senza condividere i dati grezzi tra i partecipanti.
+The system uses **XGBoost** as the machine learning model and **Flower** as the federated learning framework, enabling collaborative training without sharing raw data among participants.
 
 ---
 
-## 📋 Requisiti
+## 📋 Requirements
 
 - **Python 3.13+**
-- **Sistema operativo**: macOS, Linux, Windows
-- **Dipendenze**: specificate in `pyproject.toml`
+- **Operating system**: macOS, Linux, Windows
+- **Dependencies**: specified in `pyproject.toml`
 
 ---
 
-## 🚀 Installazione
+## 🚀 Installation
 
-### 1. Clona la repository
+### 1. Clone the repository
 
 ```bash
-git clone <url-della-tua-repo>
+git clone https://github.com/MettiFire/prova1.git
 cd prova1
 ```
 
-### 2. Crea e attiva un ambiente virtuale
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv flvenv
-source flvenv/bin/activate  # Su macOS/Linux
-# oppure
-flvenv\Scripts\activate  # Su Windows
+source flvenv/bin/activate  # On macOS/Linux
+# or
+flvenv\Scripts\activate  # On Windows
 ```
 
-### 3. Installa le dipendenze
+### 3. Install dependencies
 
 ```bash
 pip install -e .
 ```
 
-**Dipendenze principali:**
-- `flwr[simulation]>=1.13.0` - Framework Federated Learning
+**Main dependencies:**
+- `flwr[simulation]>=1.13.0` – Federated Learning framework
 - `xgboost>=2.1.0` - Gradient Boosting
-- `pandas`, `numpy`, `scikit-learn` - Preprocessing e ML utilities
+- `pandas`, `numpy`, `scikit-learn` - Preprocessing and ML utilities
 
-**Nota per macOS:** Se riscontri errori con XGBoost relativi a OpenMP:
+**Note for macOS:** If you encounter XGBoost errors related to OpenMP:
 ```bash
 brew install libomp
 ```
 
 ---
 
-## 📊 Preparazione dei Dati
+## 📊 Data Preparation
 
-### Dove posizionare i dataset
+### Where to place the datasets
 
-I dati NON sono inclusi nella repository. Devi scaricarli separatamente e posizionarli come segue:
+The data is NOT included in the repository. You must download it separately and place it as follows:
 
 ```
 dtbagging/
@@ -69,165 +69,177 @@ dtbagging/
     ├── group2/
     └── ...
     └── group8/
+└── test_data/
+    └── x_test.cvs/
 ```
-
-**Struttura prevista:**
-- 9 gruppi (`group0` - `group8`)
-- Ogni gruppo contiene 5 file CSV con dati di utenti diversi
-- Totale: 45 utenti distribuiti
 
 ### Preprocessing
 
-Esegui lo script di preprocessing per preparare i dati per Flower:
+Run the preprocessing script to prepare the data for Flower:
 
 ```bash
 cd dtbagging
-python setup_dataset.py
+python3 setup_dataset.py
 ```
 
-**Cosa fa:**
-- Unisce i file CSV di ogni gruppo
-- Processa le colonne time-series (estrae statistiche: mean, min, max, std)
-- Gestisce valori mancanti
-- Salva 9 file preprocessati in `ready_for_flwr/`
+**What it does:**
+- Merges the CSV files for each group
+- Processes time-series columns (extracts statistics: mean, min, max, std)
+- Handles missing values
+- Saves 9 preprocessed files in `ready_for_flwr/`
 
 **Output:** `ready_for_flwr/client_0.csv`, ..., `ready_for_flwr/client_8.csv`
 
 ---
 
-## 🏃 Esecuzione del Training
+## 🏃 Running the Training
 
-### Opzione 1: Simulazione Flower (con Ray)
-
-```bash
-cd dtbagging
-python run_simulation.py
-```
-
-**Configurazione:** Modifica `pyproject.toml` → `[tool.flwr.federations.local-simulation]`
-
-**Nota:** Su alcuni sistemi macOS, Ray potrebbe avere problemi di compatibilità.
-
-### Opzione 2: Training Locale Sequenziale (senza Ray)
+### Option 1: Flower Simulation (with Ray)
 
 ```bash
 cd dtbagging
-python -m dtbagging.train_local
+python3 run_simulation.py
 ```
 
-**Vantaggi:**
-- Più stabile su macOS
-- Non richiede Ray
-- Training sequenziale dei 9 client con aggregazione manuale
+**Configuration:** Edit `pyproject.toml` → `[tool.flwr.federations.local-simulation]`
 
-### Parametri di Training
+**Note:** On some macOS systems, Ray may have compatibility issues.
 
-- **Client:** 9 (uno per gruppo)
-- **Round:** 10 (configurabile)
-- **Test fraction:** 0.2 (20% dati per validazione)
-- **Modello:** XGBoost Regressor
+### Option 2: Sequential Local Training (without Ray), run outside `dtbagging`:
+
+```bash
+python3 -m dtbagging.train_local
+```
+
+**Advantages:**
+- More stable on macOS
+- Does not require Ray
+- Sequential training of the 9 clients with manual aggregation
+
+### Training Parameters
+
+- **Clients:** 9 (one per group)
+- **Rounds:** 10 (configurable)
+- **Test fraction:** 0.2 (20% of data for validation)
+- **Model:** XGBoost Regressor
 
 ---
 
-## 📁 Struttura del Progetto
+## 📁 Project Structure
 
 ```
 prova1/
-├── pyproject.toml           # Configurazione progetto e dipendenze
-├── README.md                # Questo file
-├── .gitignore               # File da ignorare in Git
+├── pyproject.toml           # Project configuration and dependencies
+├── README.md                # This file
+├── .gitignore               # Git ignored files
 │
-├── dtbagging/               # Package principale
+├── dtbagging/               # Main package
 │   ├── __init__.py
-│   ├── task.py              # Caricamento dati e utilità
-│   ├── client_app.py        # Logica client Flower
-│   ├── server_app.py        # Logica server Flower
-│   ├── setup_dataset.py     # Script preprocessing
-│   ├── run_simulation.py    # Launcher simulazione Flower
-│   ├── train_local.py       # Training locale alternativo
+│   ├── task.py              # Data loading and utilities
+│   ├── client_app.py        # Flower client logic
+│   ├── server_app.py        # Flower server logic
+│   ├── setup_dataset.py     # Preprocessing script
+│   ├── run_simulation.py    # Flower simulation launcher
+│   ├── train_local.py       # Alternative local training
 │   │
-│   ├── clients_data/        # Dati grezzi (NON in Git)
-│   └── ready_for_flwr/      # Dati preprocessati (NON in Git)
+│   ├── clients_data/        # Raw data (NOT in Git)
+│   └── ready_for_flwr/      # Preprocessed data (NOT in Git)
 │
-└── flvenv/                  # Virtual environment (NON in Git)
+└── flvenv/                  # Virtual environment (NOT in Git)
 ```
 
 ---
 
-## 📈 Output del Training
+## 📈 Training Output
 
-Al termine del training, viene generato:
+At the end of training, the following are generated:
 
-- **`final_model.json`** - Modello XGBoost aggregato finale
-- **Log di training** - Metriche RMSE/MAE per ogni round
+* **`final_model.json`** – Final aggregated XGBoost model
+* **Training logs** – RMSE/MAE metrics for each round
 
-### Esempio di utilizzo del modello
+### Example usage of the model
 
 ```python
 import xgboost as xgb
 
-# Carica il modello
+# Load the model
 model = xgb.Booster()
 model.load_model('dtbagging/final_model.json')
 
-# Esegui predizioni
+# Run predictions
 # predictions = model.predict(dmatrix)
 ```
 
 ---
 
+## 📈 Inference on Test set
+
+Once we have the `final_model.json` we can perform Inference on the test data `test_data/x_test.csv`
+
+run outside `dtbagging`:
+
+```bash
+python3 dtbagging/inference.py
+```
+
+At the end of the Inference, it is generated `submission.csv`, which contains the predictions on the test set.
+
+---
+
 ## 🔧 Troubleshooting
 
-### Problema: "ModuleNotFoundError: No module named 'task'"
+### Issue: `"ModuleNotFoundError: No module named 'task'"`
 
-**Soluzione:** Usa import relativi o esegui come modulo:
+**Solution:** Use relative imports or run as a module:
 ```bash
 python -m dtbagging.train_local
 ```
 
-### Problema: "OSError: dlopen: cannot load libomp.dylib"
+### Issue: `"OSError: dlopen: cannot load libomp.dylib"`
 
-**Soluzione (macOS):**
+**Solution (macOS):**
 ```bash
 brew install libomp
 ```
 
-### Problema: "Ray ActorDiedError"
+### Issue: `"Ray ActorDiedError"`
 
-**Soluzione:** Usa il training locale alternativo (`train_local.py`)
+**Solution:** Use the alternative local training (`train_local.py`)
 
-### Problema: "All samples are 0"
+### Issue: `"All samples are 0"`
 
-**Causa:** Colonne completamente vuote nei CSV
-**Soluzione:** Già gestito in `task.py` con `dropna(axis=1, how='all')`
-
----
-
-## 🤝 Contributi
-
-Per contribuire:
-1. Fork della repository
-2. Crea un branch (`git checkout -b feature/nuova-funzionalita`)
-3. Commit delle modifiche (`git commit -m 'Aggiunge nuova funzionalità'`)
-4. Push al branch (`git push origin feature/nuova-funzionalita`)
-5. Apri una Pull Request
+**Cause:** Completely empty columns in the CSV files
+**Solution:** Already handled in `task.py` with `dropna(axis=1, how='all')`
 
 ---
 
-## 📝 Licenza
+## 🤝 Contributions
 
-Progetto sviluppato per il corso CSI - Politecnico di Milano.
+To contribute:
+1. Fork the repository
+2. Create a branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
 
 ---
 
-## 👥 Autori
+## 📝 License
+
+Project developed for the CSI course – Politecnico di Milano.
+
+---
+
+## 👥 Authors
 
 - Anna Mettifogo
 
 ---
 
-## 🔗 Risorse
+## 🔗 Resources
 
 - [Flower Documentation](https://flower.ai/docs/)
 - [XGBoost Documentation](https://xgboost.readthedocs.io/)
 - [Federated Learning](https://en.wikipedia.org/wiki/Federated_learning)
+
+---

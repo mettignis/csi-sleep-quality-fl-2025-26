@@ -171,7 +171,7 @@ if __name__ == "__main__":
     # Percorsi
     project_dir = Path(__file__).parent
     model_path = project_dir / "final_model.json"
-    test_path = project_dir / "x_test.csv"
+    test_path = project_dir / "test_data/x_test.csv"
     output_path = project_dir / "submission.csv"
     
     print("📁 Configurazione:")

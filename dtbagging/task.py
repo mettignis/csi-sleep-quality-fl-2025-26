@@ -31,9 +31,6 @@ def load_data(partition_id:  int, test_fraction: float, data_folder: str = "dtba
     # Carica i dati (già uniti e preprocessati)
     data = pd.read_csv(data_file)
     
-    # Carica i dati (già uniti e preprocessati)
-    data = pd.read_csv(data_file)
-    
     # Rimuovi colonne completamente vuote PRIMA di dropna
     data = data.dropna(axis=1, how='all')
     
