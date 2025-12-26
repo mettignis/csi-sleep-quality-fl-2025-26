@@ -78,9 +78,9 @@ Alberi totali finali: 1,000
 |------------|--------|----|----|-----|-----|------|-----|--------|
 | exp_001 (baseline) | 900 | 0.3 | 6 | 62.21 | 88.24 | 75.12 | 4.41 | **12.74541** ✅ |
 | exp_002 (RF) | 9000 | - | 10 | 66.58 | 79.00 | 72.90 | 2.32 | 12.95967 |
-| exp_003 (enhanced) | 6000 | 0.3 | 6 | 51.10 | 92.99 | 77.74 | 6.58 | 14.46567 ❌ |
+| **exp_005 (conservative)** | **1000** | **0.2** | **7** | 57.43 | 96.10 | 80.43 | 5.95 | **13.88667** |
 | exp_004 (tuned) | 6000 | 0.1 | 8 | 66.18 | 94.61 | 81.69 | 4.36 | 14.26652 ❌ |
-| **exp_005 (conservative)** | **1000** | **0.2** | **7** | 57.43 | 96.10 | 80.43 | 5.95 | **TBD** |
+| exp_003 (enhanced) | 6000 | 0.3 | 6 | 51.10 | 92.99 | 77.74 | 6.58 | 14.46567 ❌ |
 
 ## Analisi
 
@@ -94,10 +94,34 @@ Alberi totali finali: 1,000
 ⚠️ **Range più ampio** → maggiore varianza nelle predizioni  
 ✅ **Dimensione corretta** → evita overfitting da troppi alberi  
 
-### Aspettative su Kaggle
-- **Best case:** Migliora baseline (< 12.74541) grazie a depth+1
-- **Likely case:** Simile a baseline (~12.7-12.9)
-- **Worst case:** Peggio per mean spostata verso l'alto
+### Risultato Kaggle
+- **Score ottenuto:** 13.88667
+- **Baseline exp_001:** 12.74541
+- **Peggioramento:** +1.14 punti (8.9% peggio)
+
+---
+
+## ❌ POST-MORTEM: Perché è fallito?
+
+### Problema: Mean troppo alta
+La predizione aveva **mean=80.43** vs baseline **mean=75.12** (+5.31 punti)
+- Le predizioni sono sistematicamente **spostate verso l'alto**
+- Questo causa errore maggiore su valori reali più bassi
+
+### Cause identificate
+1. **Max depth ↑ (6→7)** ha aumentato la complessità troppo
+2. **Learning rate ↓ (0.3→0.2)** non ha compensato abbastanza
+3. **Combinazione sbagliata** dei due parametri
+
+### Lezione appresa
+❌ **Anche modifiche "conservative" possono peggiorare** se sbagliate  
+❌ **Mean spostata = bias sistematico** → errore garantito  
+✅ **Il baseline era già ottimale** per questi dati
+
+### Conclusione
+**TUTTI gli esperimenti (003, 004, 005) hanno fallito nel battere il baseline.**
+
+Il baseline exp_001 (12.74541) rimane il migliore.
 
 ## File Prodotti
 
@@ -106,4 +130,5 @@ Alberi totali finali: 1,000
 
 ---
 
-**Status:** ⏳ Pronto per submission Kaggle
+**Status:** ❌ Esperimento fallito - Peggio del baseline
+
