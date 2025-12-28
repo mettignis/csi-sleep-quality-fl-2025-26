@@ -71,6 +71,8 @@ class RNNPredictor:
         
         self.sequence_length = self.config.get('sequence_length', 7)
         self.feature_cols = self.config.get('feature_cols')
+        self.global_mean = np.array(self.config['global_mean']) if self.config.get('global_mean') else None
+        self.global_std = np.array(self.config['global_std']) if self.config.get('global_std') else None
     
     def preprocess_data(self, df: pd.DataFrame) -> np.ndarray:
         """
@@ -91,16 +93,19 @@ class RNNPredictor:
         if has_timeseries:
             print("   Preprocessing time series columns...")
             df = self._preprocess_timeseries(df)
+            print(f"   ✓ After preprocessing: {df.shape[1]} columns")
         
         # Select feature columns
         if self.feature_cols:
             # Use same features as training
             missing_cols = [col for col in self.feature_cols if col not in df.columns]
             if missing_cols:
-                print(f"   ⚠️  Missing columns: {missing_cols[:5]}...")
+                print(f"   ⚠️  Missing {len(missing_cols)} columns, filling with zeros")
                 # Add missing columns with zeros
                 for col in missing_cols:
                     df[col] = 0.0
+            
+            # Ensure correct column order
             X = df[self.feature_cols].values
         else:
             # Infer features (exclude metadata)
@@ -115,14 +120,20 @@ class RNNPredictor:
         # Handle missing values
         X = np.nan_to_num(X, nan=0.0)
         
-        # Normalize (simple standardization)
-        X_mean = np.mean(X, axis=0)
-        X_std = np.std(X, axis=0) + 1e-8
-        X = (X - X_mean) / X_std
+        # Normalize using training statistics for consistency
+        if self.global_mean is not None and self.global_std is not None:
+            print(f"   Using global normalization statistics from training")
+            X = (X - self.global_mean) / self.global_std
+        else:
+            print(f"   ⚠️  Using local normalization (may cause inconsistent predictions)")
+            X_mean = np.mean(X, axis=0)
+            X_std = np.std(X, axis=0) + 1e-8
+            X = (X - X_mean) / X_std
         
-        # Create sequences
+        # Create sequences for LSTM
+        print(f"   Creating sequences (length={self.sequence_length})...")
         X_seq = self._create_sequences(X)
-        
+        print(f"   ✓ Sequences created: {X_seq.shape}")
         return X_seq
     
     def _preprocess_timeseries(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -138,18 +149,21 @@ class RNNPredictor:
             if col not in df.columns:
                 continue
             
+            print(f"      Processing {col}...")
             base_name = col.replace('_time_series', '')
             
             def safe_parse(x):
                 if pd.isna(x) or x is None:
                     return []
                 if isinstance(x, (list, np.ndarray)):
-                    return list(x)
+                    # Filter out None values
+                    return [v for v in x if v is not None]
                 if isinstance(x, str):
                     try:
                         parsed = ast.literal_eval(x.strip())
                         if isinstance(parsed, (list, tuple)):
-                            return list(parsed)
+                            # Filter out None values
+                            return [v for v in parsed if v is not None]
                         return []
                     except:
                         return []
@@ -157,11 +171,20 @@ class RNNPredictor:
             
             series_data = df[col].apply(safe_parse)
             
-            # Calculate statistics
-            df[f'{base_name}_mean'] = series_data.apply(lambda x: np.mean(x) if len(x) > 0 else np.nan)
-            df[f'{base_name}_min'] = series_data.apply(lambda x: np.min(x) if len(x) > 0 else np.nan)
-            df[f'{base_name}_max'] = series_data.apply(lambda x: np.max(x) if len(x) > 0 else np.nan)
-            df[f'{base_name}_std'] = series_data.apply(lambda x: np.std(x) if len(x) > 0 else np.nan)
+            # Calculate statistics - safe_mean handles empty lists
+            def safe_mean(x):
+                return np.mean(x) if len(x) > 0 else 0.0
+            def safe_min(x):
+                return np.min(x) if len(x) > 0 else 0.0
+            def safe_max(x):
+                return np.max(x) if len(x) > 0 else 0.0
+            def safe_std(x):
+                return np.std(x) if len(x) > 0 else 0.0
+            
+            df[f'{base_name}_mean'] = series_data.apply(safe_mean)
+            df[f'{base_name}_min'] = series_data.apply(safe_min)
+            df[f'{base_name}_max'] = series_data.apply(safe_max)
+            df[f'{base_name}_std'] = series_data.apply(safe_std)
             
             # Drop original time series column
             df = df.drop(columns=[col])
@@ -230,8 +253,13 @@ class RNNPredictor:
             raise FileNotFoundError(f"CSV file not found: {csv_path}")
         
         print(f"\n📂 Loading data from: {csv_path}")
+        # Try both comma and semicolon delimiters
         df = pd.read_csv(csv_path)
-        print(f"✓ Loaded {len(df)} rows")
+        if len(df.columns) == 1:
+            # Likely semicolon-delimited
+            print("   Retrying with semicolon delimiter...")
+            df = pd.read_csv(csv_path, sep=';')
+        print(f"✓ Loaded {len(df)} rows with {len(df.columns)} columns")
         
         # Generate predictions
         print("\n🔮 Generating predictions...")

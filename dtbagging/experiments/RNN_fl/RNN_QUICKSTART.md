@@ -56,6 +56,11 @@ python -m dtbagging.inference_rnn \
     --output submission_rnn.csv
 ```
 
+python3 -m dtbagging.inference_rnn \
+    --model dtbagging/experiments/exp_rnn_federated/rnn_federated_model_20251228_161641* \
+    --input dtbagging/test_data/x_test.csv \
+    --output submission_rnn.csv
+
 ## 🏗️ Architecture Overview
 
 ### Federated Learning Setup
