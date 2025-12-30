@@ -88,9 +88,9 @@ Min samples split: 5 (exp_002: 2)
 
 | Esperimento | Algoritmo | Alberi | Min | Max | Mean | Std | Kaggle Score |
 |------------|-----------|--------|-----|-----|------|-----|--------------|
-| exp_001 (baseline) | XGBoost | 1000 | 62.21 | 88.24 | 75.12 | 4.41 | **12.74541** ✅ |
+| **exp_008 (RF improved)** | **RF** | **18000** | **68.77** | **78.35** | **74.42** | **2.24** | **12.45205** ✅✅ |
+| exp_001 (baseline) | XGBoost | 1000 | 62.21 | 88.24 | 75.12 | 4.41 | 12.74541 |
 | exp_002 (RF) | RF | 9000 | 66.58 | 79.00 | 72.90 | 2.32 | 12.95967 |
-| **exp_008 (RF improved)** | **RF** | **18000** | **68.77** | **78.35** | **74.42** | **2.24** | **?** 🤔 |
 
 ### Analisi Predizioni
 
@@ -133,24 +133,121 @@ Min samples split: 5 (exp_002: 2)
 | Mean | 72.90 | 74.42 | +1.52 ⬆️ |
 | Std | 2.32 | 2.24 | -0.08 ⬇️ |
 | Range | 66-79 | 68-78 | Simile |
-| Score | 12.95967 | ??? | ??? |
+| **Score** | **12.95967** | **12.45205** | **-0.51** ✅ |
 
-**Aspettativa:** Mean +1.52 più vicina al baseline → Potrebbe battere exp_002!
+**Miglioramento:** -0.51 punti rispetto a exp_002 (4% meglio!)
 
 ## Risultato Kaggle
 
-- **Score atteso:** < 12.95967 (migliore di exp_002)
-- **Target:** Avvicinarsi a 12.74541 (baseline)
-- **Best case:** 12.5-12.8 range
+- **Score ottenuto:** 12.45205 ✅✅ **NUOVO BEST!**
+- **Baseline exp_001:** 12.74541
+- **Miglioramento:** -0.29 punti (2.3% meglio del baseline XGBoost!)
+- **Posizione:** PRIMO esperimento a battere il baseline
 
 ---
 
-## 🔍 ANALISI POST-SUBMISSION
+## ✅✅ POST-MORTEM: Perché ha FUNZIONATO?
 
-*Da compilare dopo risultato Kaggle*
+### Successo Straordinario
+
+**PRIMO esperimento su 8 a battere il baseline!**
+
+Score progression:
+1. **exp_008 (RF improved): 12.45205** ✅✅ **BEST**
+2. exp_001 (XGBoost baseline): 12.74541 (-0.29)
+3. exp_002 (RF base): 12.95967 (-0.51)
+4. exp_005 (XGBoost): 13.88667 (-1.43)
+5. exp_004 (XGBoost): 14.26652 (-1.81)
+6. exp_003 (XGBoost): 14.46567 (-2.01)
+7. exp_006 (XGBoost + FE): 14.83370 (-2.38)
+
+### Fattori Chiave del Successo
+
+#### 1. **Random Forest > XGBoost su Dataset Piccoli**
+- **697 campioni di training** → Troppo pochi per XGBoost
+- XGBoost tende all'overfitting (Train RMSE=0.00 in TUTTI gli esperimenti)
+- RF mantiene Train RMSE sano (6-9) → Generalizzazione migliore
+
+#### 2. **Ensemble Averaging è Potente**
+- **90 modelli mediati** (9 clients × 10 rounds)
+- Riduce varianza delle predizioni
+- Std 2.24 molto stabile
+
+#### 3. **Più Alberi = Più Diversità**
+- exp_002: 100 trees/modello
+- exp_008: 200 trees/modello (+100%)
+- Più diversità → Migliore generalizzazione
+
+#### 4. **Profondità Aumentata Aiuta**
+- exp_002: max_depth=10
+- exp_008: max_depth=15 (+50%)
+- Cattura pattern più complessi senza overfitting
+
+#### 5. **Regolarizzazione Efficace**
+- min_samples_split=5 (vs 2 in exp_002)
+- Forza più generalizzazione
+- Evita split troppo specifici
+
+#### 6. **NO Feature Engineering**
+- exp_006 (XGBoost + FE): 14.83370 ❌
+- exp_008 (RF + base features): 12.45205 ✅
+- Conferma: **il problema era l'algoritmo, non le feature**
+
+### Analisi Statistica
+
+**Perché mean 74.42 < baseline 75.12 produce score migliore?**
+
+Mean più bassa (-0.70) indica predizioni leggermente più conservative:
+- **Meno outlier estremi** → Range 68-78 vs baseline 62-88
+- **Più consistenza** → Std 2.24 vs baseline 4.41
+- **Meno errori grossolani** → Evita predizioni molto sbagliate
+
+RMSE/MAE penalizzano errori grandi quadraticamente → Ridurre outlier è più importante che matchare la mean esatta.
+
+### Lezioni Apprese
+
+#### ✅ Cosa Funziona
+1. **Random Forest > XGBoost** su dataset piccoli (<1000 samples)
+2. **Ensemble averaging** (90 modelli) riduce varianza
+3. **Più alberi** aumenta diversità senza overfitting
+4. **Regolarizzazione moderata** (min_samples_split=5)
+5. **Statistiche conservative** (std bassa, range stretto) → score migliore
+
+#### ❌ Cosa NON Funziona
+1. ~~Aumentare round/alberi XGBoost~~ → Overfitting
+2. ~~Hyperparameter tuning XGBoost~~ → Sempre peggio
+3. ~~Feature engineering massivo~~ → Troppi parametri, overfitting
+4. ~~Ridurre round XGBoost~~ → Non basta per evitare overfitting
+
+### Prossimi Passi Suggeriti
+
+**Continuare sulla strada Random Forest:**
+
+#### exp_009: RF con Ancora Più Alberi
+- Trees per modello: 200 → 300-500
+- Mantenere max_depth=15
+- Obiettivo: Aumentare ancora diversità
+
+#### exp_010: RF con Feature Selection
+- Selezionare top 20-25 feature più importanti
+- Ridurre rumore
+- Mantenere trees=200, depth=15
+
+#### exp_011: RF con Tuning Conservativo
+- Provare max_depth=12-18
+- min_samples_split=3-7
+- Ottimizzare regolarizzazione
+
+#### exp_012: Ensemble RF + XGBoost Baseline
+- Mediare predizioni exp_008 (RF) e exp_001 (XGBoost)
+- Combinare punti di forza di entrambi
+- Weighted average (es. 60% RF, 40% XGBoost)
 
 ---
 
-**Status:** 🆕 Esperimento completato - In attesa risultato Kaggle
+**Status:** ✅✅ **SUCCESSO! NUOVO RECORD!**
 
-**RACCOMANDAZIONE:** Provare PRIMA questo esperimento. Ha le migliori statistiche finora dopo il baseline, e RF ha dimostrato di generalizzare meglio di XGBoost su questo dataset piccolo.
+**Ranking esperimenti:**
+1. 🥇 **exp_008: 12.45205** (RF improved)
+2. 🥈 exp_001: 12.74541 (XGBoost baseline)
+3. 🥉 exp_002: 12.95967 (RF base)
