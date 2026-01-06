@@ -12,7 +12,8 @@ def run_simulation():
     project_dir = os.path.abspath(project_dir)
     
     # Usa il comando flwr dal virtual environment
-    venv_bin = os.path.join(project_dir, "flvenv", "bin")
+    venv_name = ".venv" if os.path.exists(os.path.join(project_dir, ".venv")) else "flvenv"
+    venv_bin = os.path.join(project_dir, venv_name, "bin")
     flwr_path = os.path.join(venv_bin, "flwr")
     
     # Aggiungi la directory bin del venv al PATH
