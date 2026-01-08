@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ESPERIMENTO 031 - Inference LightGBM FEDERATED + Three-Way Ensemble
 
@@ -202,18 +201,18 @@ submission = pd.DataFrame({
 submission_file = exp_dir / "submission_exp031.csv"
 submission.to_csv(submission_file, index=False)
 
-print(f"\n✅ Submission salvata: {submission_file}")
+print(f"\nSubmission salvata: {submission_file}")
 print(f"   Samples: {len(submission)}")
 print(f"   Range: [{submission['label'].min():.2f}, {submission['label'].max():.2f}]")
 
 print("\n" + "="*80)
-print("✅ ESPERIMENTO 031 COMPLETATO")
+print("ESPERIMENTO 031 COMPLETATO")
 print("="*80)
-print(f"\n📊 Statistiche finali:")
+print(f"\nStatistiche finali:")
 print(f"   Mean: {ensemble_predictions.mean():.2f}")
 print(f"   Std:  {ensemble_predictions.std():.2f}")
 print(f"   Min:  {ensemble_predictions.min():.2f}")
 print(f"   Max:  {ensemble_predictions.max():.2f}")
 print(f"\n🎯 Atteso: 11.5-11.8 MAE su Kaggle")
 print(f"   (vs exp_015 best: 12.01 MAE)")
-print(f"\n✅ FEDERATED LEARNING COMPLIANT")
+print(f"\n FEDERATED LEARNING COMPLIANT")

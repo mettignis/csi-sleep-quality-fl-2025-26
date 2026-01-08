@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 EXP 040 - LightGBM FEDERATED Hyperparameter Tuning
 Grid search ESTESA per-client (vero FL) - trova best params per ogni client
@@ -144,7 +143,7 @@ for client_id in range(9):
                               f"Iter: {best_iter}, Val: {val_score:.3f}")
     
     elapsed = time.time() - start_time
-    print(f"\n⏱️  Client {client_id} completato in {elapsed/60:.1f} minuti")
+    print(f"\nClient {client_id} completato in {elapsed/60:.1f} minuti")
     print(f"\n🏆 BEST CONFIG for Client {client_id}:")
     for key, val in best_params.items():
         if key not in ['verbose', 'random_state']:

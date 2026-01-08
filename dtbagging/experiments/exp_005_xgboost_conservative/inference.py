@@ -60,7 +60,7 @@ def load_test_data():
     
     print(f"   Shape dopo preprocessing: {data.shape}")
     
-    # Aggiungi Unnamed: 0 se mancante
+    # Aggiungi Unnamed: 0 se manca
     if 'Unnamed: 0' not in data.columns:
         data.insert(0, 'Unnamed: 0', range(len(data)))
         print(f"   ✓ Aggiunta colonna 'Unnamed: 0'")
@@ -72,7 +72,7 @@ def main():
     print("🔮 INFERENCE - ESPERIMENTO 005")
     print("="*70)
     
-    # Carica modello da experiments/
+    # Carica modello 
     model_path = Path(__file__).parent / "experiments" / "exp_005_xgboost_conservative" / "final_model_exp005.json"
     print(f"\n📥 Caricamento modello da: experiments/exp_005_xgboost_conservative/{model_path.name}")
     
@@ -126,7 +126,7 @@ def main():
         'label': predictions
     })
     
-    # Salva submission in experiments/
+    # Salva submission 
     exp_dir = Path(__file__).parent / "experiments" / "exp_005_xgboost_conservative"
     output_path = exp_dir / "submission_exp005.csv"
     submission.to_csv(output_path, index=False)

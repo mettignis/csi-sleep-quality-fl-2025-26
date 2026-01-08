@@ -89,7 +89,7 @@ lgbm_mae = mean_absolute_error(y_val, lgbm_ensemble)
 print(f"✅ LightGBM Bagging: MAE = {lgbm_mae:.5f}")
 
 # Random Forest (exp_014 - dobbiamo ri-generare le predizioni)
-# Siccome RF è complesso, usiamo direttamente le predizioni dal file submission
+# usiamo direttamente le predizioni dal file submission
 try:
     RF_SUB_PATH = os.path.join(BASE_DIR, "experiments/exp_014_rf_advanced/submission_exp014.csv")
     rf_sub = pd.read_csv(RF_SUB_PATH)
@@ -97,7 +97,7 @@ try:
     
     # RF submission è su test set, non validation
     # Dobbiamo ricavare le predizioni validation dai modelli originali
-    # Per semplicità, usiamo la media di y_val come baseline RF (conservative)
+    # usiamo la media di y_val come baseline RF (conservative)
     rf_ensemble = np.full_like(y_val, float(y_val.mean()))
     rf_mae = mean_absolute_error(y_val, rf_ensemble)
     print(f"⚠️  RF: uso baseline (mean predictor) MAE = {rf_mae:.5f}")

@@ -42,13 +42,6 @@ Ottimizzare i pesi di RF, XGBoost e LightGBM per migliorare l'ensemble rispetto 
 - **Potential:** -0.10/-0.30 MAE improvement
 - **Submission saved:** 22/35 submissions remaining
 
-## Execution
-
-```bash
-cd experiments/exp_032_weight_optimization
-python optimize_weights_exp032.py  # 30-40 min
-python inference_exp032.py         # 1-2 min
-```
 
 ## Expected Results
 
@@ -69,10 +62,4 @@ python inference_exp032.py         # 1-2 min
   - RF (exp_014): ✅ Trained per client
   - XGBoost (exp_001): ✅ Trained per client
   - LightGBM (exp_031): ✅ 9 models, one per client
-
-## Files
-- `optimize_weights_exp032.py`: Grid search sui pesi
-- `inference_exp032.py`: Genera submission con pesi ottimali
-- `weight_optimization_results.csv`: Tutti i risultati del grid search
-- `best_weights_exp032.pkl`: Pesi ottimali
-- `submission_exp032.csv`: Submission finale
+ì

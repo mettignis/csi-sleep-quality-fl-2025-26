@@ -16,14 +16,16 @@ def train_xgb_conservative(num_rounds=10, n_estimators=100):
         num_rounds: Numero di round FL (10 come baseline)
         n_estimators: Alberi per client (100 come baseline)
     """
+
+    # Un po' di print per chiarezza
     print("="*70)
-    print("🎯 XGBOOST CONSERVATIVE TUNING - ESPERIMENTO 005")
+    print("XGBOOST CONSERVATIVE TUNING - ESPERIMENTO 005")
     print("="*70)
     print(f"Round FL: {num_rounds} (come baseline)")
     print(f"Alberi per client: {n_estimators} (come baseline)")
     print(f"Alberi totali finali: {num_rounds * 9 * n_estimators} = {num_rounds * 9 * n_estimators:,}")
     print()
-    print("📊 MODIFICHE CONSERVATIVE rispetto a baseline:")
+    print("MODIFICHE CONSERVATIVE rispetto a baseline:")
     print("   • learning_rate: 0.2 (era 0.3) → leggermente più conservativo")
     print("   • max_depth: 7 (era 6) → +1 livello di profondità")
     print("   • min_child_weight: 1 (invariato)")
@@ -71,7 +73,7 @@ def train_xgb_conservative(num_rounds=10, n_estimators=100):
             
             print(f"   Train: {num_train}, Test: {num_test}")
             
-            # Training con modello globale come init se esiste
+            # Training con modello globale 
             if global_model is not None:
                 xgb_train = xgb.train(
                     params,
@@ -110,14 +112,14 @@ def train_xgb_conservative(num_rounds=10, n_estimators=100):
             local_weights.append(num_train)
         
         # Aggregazione
-        print(f"\n🔄 Aggregazione {len(local_models)} modelli...")
+        print(f"\n Aggregazione {len(local_models)} modelli...")
         
         if len(local_models) > 0:
             global_model = local_models[0]
             
         print(f"✓ Round {round_num + 1} completato")
     
-    # Salva modello finale in experiments/
+    # Salva modello finale 
     exp_dir = Path(__file__).parent / "experiments" / "exp_005_xgboost_conservative"
     exp_dir.mkdir(parents=True, exist_ok=True)
     output_path = exp_dir / "final_model_exp005.json"

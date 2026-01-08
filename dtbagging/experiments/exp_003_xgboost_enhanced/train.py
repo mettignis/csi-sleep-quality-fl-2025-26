@@ -3,7 +3,6 @@ import xgboost as xgb
 import numpy as np
 from pathlib import Path
 
-# Importa funzione di caricamento dati
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
 from task import load_data
@@ -108,14 +107,9 @@ def train_xgb_improved(num_rounds=30, n_estimators=200):
             # Salva il primo modello come base
             global_model = local_models[0]
             
-            # Nota: XGBoost non supporta averaging diretto dei parametri
-            # In un vero FL faresti weighted averaging dei gradienti
-            # Qui usiamo l'ultimo modello come "approssimazione"
-            # Per un vero averaging servirebbe FedAvg personalizzato
-            
         print(f"✓ Round {round_num + 1} completato")
     
-    # Salva modello finale in experiments/
+    # Salva modello 
     exp_dir = Path(__file__).parent / "experiments" / "exp_003_xgboost_enhanced"
     exp_dir.mkdir(parents=True, exist_ok=True)
     output_path = exp_dir / "final_model_exp003.json"

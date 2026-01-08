@@ -2,7 +2,7 @@
 
 **Data:** 26 Dicembre 2025  
 **Algoritmo:** Random Forest (Federated Learning)  
-**Obiettivo:** Migliorare exp_002 (RF) che fece 12.95967 (solo 0.21 peggio del baseline!)
+**Obiettivo:** Migliorare exp_002 (RF) che ha fatto 12.95967 (solo 0.21 peggio del baseline!)
 
 ## Razionale
 
@@ -95,31 +95,27 @@ Min samples split: 5 (exp_002: 2)
 ### Analisi Predizioni
 
 **Miglioramenti vs exp_002:**
-- ✅ **Mean più vicina al baseline:** 74.42 vs exp_002 (72.90), baseline (75.12)
-- ✅ **Std simile:** 2.24 vs exp_002 (2.32) → mantiene conservativismo
-- ✅ **Range più realistico:** 68-78 vs baseline 62-88 (meno estremi)
-- ✅ **NO overfitting:** Train RMSE 6-9 (sano, non 0.00)
+- **Mean più vicina al baseline:** 74.42 vs exp_002 (72.90), baseline (75.12)
+- **Std simile:** 2.24 vs exp_002 (2.32) → mantiene conservativismo
+- **Range più realistico:** 68-78 vs baseline 62-88 (meno estremi)
+- **NO overfitting:** Train RMSE 6-9 (sano, non 0.00)
 
 **Rispetto al baseline XGBoost:**
 - Mean: 74.42 vs 75.12 → Differenza -0.70 (molto vicino!)
 - Std: 2.24 vs 4.41 → Più conservativo (come exp_002)
 - Range: più stretto (68-78 vs 62-88) → Meno variabilità
 
-## File Prodotti
-
-- `final_model_rf_exp008.pkl` - 90 modelli Random Forest (pickle)
-- `submission_exp008.csv` - Predizioni per Kaggle (ensemble averaging)
 
 ## Aspettative
 
-### Pro ✅
+### Pro 
 1. **Secondo miglior algoritmo:** exp_002 RF fece 12.95967 (solo 0.21 peggio)
 2. **Mean ottima:** 74.42 molto vicina a baseline 75.12
 3. **NO overfitting:** Train RMSE sano (6-9 vs 0.00 di XGBoost)
 4. **Ensemble potente:** 90 modelli × 200 alberi = 18,000 alberi mediati
 5. **Statistiche realistiche:** Range 68-78 sensato, no outlier estremi
 
-### Contro ⚠️
+### Contro 
 1. **Std bassa:** 2.24 (come exp_002) → Potrebbe essere troppo conservativo
 2. **Range stretto:** 68-78 (10 punti) vs baseline 62-88 (26 punti)
 3. **Mean leggermente bassa:** 74.42 vs 75.12 baseline (-0.70)
@@ -139,14 +135,14 @@ Min samples split: 5 (exp_002: 2)
 
 ## Risultato Kaggle
 
-- **Score ottenuto:** 12.45205 ✅✅ **NUOVO BEST!**
+- **Score ottenuto:** 12.45205 ✅ **NUOVO BEST!**
 - **Baseline exp_001:** 12.74541
 - **Miglioramento:** -0.29 punti (2.3% meglio del baseline XGBoost!)
 - **Posizione:** PRIMO esperimento a battere il baseline
 
 ---
 
-## ✅✅ POST-MORTEM: Perché ha FUNZIONATO?
+## Perché ha FUNZIONATO?
 
 ### Successo Straordinario
 
@@ -204,16 +200,16 @@ Mean più bassa (-0.70) indica predizioni leggermente più conservative:
 
 RMSE/MAE penalizzano errori grandi quadraticamente → Ridurre outlier è più importante che matchare la mean esatta.
 
-### Lezioni Apprese
+### Lezioni Imparate
 
-#### ✅ Cosa Funziona
+#### Cosa Funziona
 1. **Random Forest > XGBoost** su dataset piccoli (<1000 samples)
 2. **Ensemble averaging** (90 modelli) riduce varianza
 3. **Più alberi** aumenta diversità senza overfitting
 4. **Regolarizzazione moderata** (min_samples_split=5)
 5. **Statistiche conservative** (std bassa, range stretto) → score migliore
 
-#### ❌ Cosa NON Funziona
+#### Cosa NON Funziona
 1. ~~Aumentare round/alberi XGBoost~~ → Overfitting
 2. ~~Hyperparameter tuning XGBoost~~ → Sempre peggio
 3. ~~Feature engineering massivo~~ → Troppi parametri, overfitting
@@ -245,7 +241,7 @@ RMSE/MAE penalizzano errori grandi quadraticamente → Ridurre outlier è più i
 
 ---
 
-**Status:** ✅✅ **SUCCESSO! NUOVO RECORD!**
+**Status:** Successo 
 
 **Ranking esperimenti:**
 1. 🥇 **exp_008: 12.45205** (RF improved)

@@ -31,7 +31,6 @@ def load_data_with_features(partition_id: int, test_fraction: float = 0.2):
         print(f"⚠️  Nessun file trovato per partition {partition_id}")
         return None, None, 0, 0
     
-    # Carica e unisci tutti i CSV
     dfs = []
     for csv_file in csv_files:
         df = pd.read_csv(csv_file, sep=';')
@@ -115,7 +114,7 @@ def train_xgb_feature_eng(num_rounds=10, n_estimators=100):
     print("   • Transformations: log(calories), log(distance)")
     print()
     
-    # Configurazione XGBoost (IDENTICA AL BASELINE)
+    # Configurazione XGBoost 
     params = {
         "objective": "reg:squarederror",
         "max_depth": 6,
@@ -197,7 +196,7 @@ def train_xgb_feature_eng(num_rounds=10, n_estimators=100):
             
         print(f"✓ Round {round_num + 1} completato")
     
-    # Salva modello finale in experiments/
+    # Salva modello finale
     exp_dir = Path(__file__).parent / "experiments" / "exp_006_feature_engineering"
     exp_dir.mkdir(parents=True, exist_ok=True)
     output_path = exp_dir / "final_model_exp006.json"

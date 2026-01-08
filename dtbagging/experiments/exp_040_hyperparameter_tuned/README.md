@@ -307,67 +307,7 @@ With validation sets < 200 samples:
 
 **Note:** FL compliance preserved even in failure - the approach was principled, just ineffective.
 
----
 
-## What Should Have Been Done
-
-### Conservative Hyperparameter Search
-
-Instead of 400-500 combinations, test only **10-20 carefully chosen configurations**:
-
-**RF conservative grid:**
-```python
-param_grid = {
-    'n_estimators': [150, 200],       # 2 values
-    'max_depth': [12, 15],            # 2 values (avoid deep 20-25)
-    'min_samples_split': [4, 5],      # 2 values (avoid overfitting 2-3)
-    'min_samples_leaf': [2, 3]        # 2 values (avoid overfitting 1)
-}
-# Total: 2×2×2×2 = 16 combinations
-```
-
-**LGBM conservative grid:**
-```python
-param_grid = {
-    'num_leaves': [25, 31],           # 2 values
-    'learning_rate': [0.04, 0.05],    # 2 values
-    'max_depth': [6, 8],              # 2 values
-    'n_estimators': [200, 300]        # 2 values
-}
-# Total: 2×2×2×2 = 16 combinations
-```
-
-**Total:** 16 × 9 clients = 144 evaluations (vs 8000) - much less overfitting risk
-
-### Alternative: No Tuning
-
-Simply use exp_039's fixed hyperparameters with federated per-client training:
-- RF: n=200, depth=15, split=5, leaf=1
-- LGBM: n=200, lr=0.05, depth=8
-- Train 9 models per algorithm, bagging ensemble
-
-**Expected:** Similar to exp_039 (~11.89 MAE) with potential small improvement from bagging diversity
-
----
-
-## Files Generated
-
-```
-exp_040_hyperparameter_tuned/
-├── tune_rf_federated.py              # RF grid search per-client (400 combos)
-├── tune_lgbm_federated.py            # LGBM grid search per-client (500 combos)
-├── generate_submission_federated.py  # Bagging ensemble (9 RF + 9 LGBM)
-├── rf_federated_models.pkl           # 9 RF models (~50MB)
-├── lgbm_federated_models.pkl         # 9 LGBM models (~2MB)
-├── rf_federated_best_params.json     # Best params per client (RF)
-├── lgbm_federated_best_params.json   # Best params per client (LGBM)
-├── rf_training_live.log              # RF training output (3600 evaluations)
-├── lgbm_training_live.log            # LGBM training output (4500 evaluations)
-├── submission_exp040_federated.csv   # Final submission (189 predictions)
-└── README.md                         # This file
-```
-
----
 
 ## Conclusion
 
@@ -376,11 +316,3 @@ exp_040 è un **fallimento catastrofico** nonostante l'approccio teoricamente so
 **Validation improvement:** -2.00 MAE (spectacular) ✅  
 **Kaggle degradation:** +0.73 MAE (catastrophic) ❌  
 **Overfitting gap:** DOUBLED (3.3 → 6.0 MAE)
-
-**Lesson critica:** Con Federated Learning su piccoli dataset per-client, la **semplicità batte la complessità**. exp_039 con hyperparameters fissi (11.89 MAE) rimane il miglior approccio valido.
-
-**Action:** Revert to exp_039 as active submission, accept 3rd place (11.89 MAE)
-
-**Submissions used:** 17/35 (exp_040 costa 1 submission)  
-**Time invested:** ~5 hours training  
-**Value gained:** Critical insight on FL hyperparameter tuning limits

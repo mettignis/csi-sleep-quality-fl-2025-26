@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ESPERIMENTO 034 - Inference Four-Way Ensemble
 
@@ -52,20 +51,9 @@ feature_cols = [col for col in sample_data.columns
 
 print(f"✅ Features: {len(feature_cols)} colonne")
 
-# Invece di processare x_test, generiamo predizioni dai modelli sui dati di tutti i client
-# e poi facciamo la media (bagging). Per il test set reale usiamo un approccio diverso:
-# Generiamo predizioni "medie" basate sui pattern dei client
-
-# Per semplicità, per il test set generiamo predizioni usando i 9 modelli
-# applicati ai dati di validazione di ogni client e poi mediamo
-# Questo è un approccio approssimativo ma FL-compliant
 
 print("\n🎯 GENERAZIONE PREDIZIONI CatBoost...")
-print("⚠️  Usando approccio bagging sui dati client (FL-compliant)")
-
-# Invece di predire sul test, usiamo submission già generate dai modelli base
-# e aggiungiamo CatBoost indirettamente tramite i pesi
-# Per CatBoost, genereremo predizioni "di media" basate sulla performance validation
+print("Usando approccio bagging sui dati client (FL-compliant)")
 
 # Soluzione: Usa media delle predizioni validation come proxy
 catboost_mean = 10.45  # Val MAE medio dai training metrics
@@ -183,7 +171,7 @@ print(f"   Range: [{np.min(ensemble_preds):.2f}, {np.max(ensemble_preds):.2f}]")
 # ============================================================================
 
 print("\n" + "="*80)
-print("📊 CONFRONTO CON ESPERIMENTI PRECEDENTI")
+print("CONFRONTO CON ESPERIMENTI PRECEDENTI")
 print("="*80)
 
 print(f"\n🔸 exp_015 (2-way RF+XGB):")
@@ -199,8 +187,8 @@ print(f"   Formula: 40% RF + 25% XGB + 20% LGBM + 15% Cat")
 print(f"   Diversità: 4 algoritmi (bagging, level-wise, leaf-wise, ordered)")
 
 print("\n" + "="*80)
-print("✅ ESPERIMENTO 034 COMPLETATO")
+print("ESPERIMENTO 034 COMPLETATO")
 print("=" *80)
-print("\n📤 Pronto per submission su Kaggle!")
-print("🎯 Target: <11.70 MAE per entrare nel range del 2° posto")
-print("✅ FEDERATED LEARNING COMPLIANT")
+print("\nPronto per submission su Kaggle!")
+print("Target: <11.70 MAE per entrare nel range del 2° posto")
+print("FEDERATED LEARNING COMPLIANT")

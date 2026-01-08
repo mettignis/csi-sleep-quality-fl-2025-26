@@ -16,7 +16,7 @@ def load_test_data():
     if not test_path.exists():
         raise FileNotFoundError(f"File di test non trovato: {test_path}")
     
-    # Carica dati (separatore ;)
+    # Carica dati 
     data = pd.read_csv(test_path, sep=';')
     print(f"   Shape iniziale: {data.shape}")
     

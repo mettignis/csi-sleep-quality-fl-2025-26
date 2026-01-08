@@ -11,7 +11,7 @@ Dopo 6 esperimenti falliti consecutivamente (exp_002-006), tutti peggiori del ba
 - exp_003 (6000 alberi): 14.46567 ❌
 - exp_004 (tuned): 14.26652 ❌
 - exp_005 (conservative): 13.88667 ❌
-- exp_006 (feature eng): 14.83370 ❌❌
+- exp_006 (feature eng): 14.83370 ❌
 
 **Pattern identificato:** Ogni aumento di complessità peggiora le cose.
 
@@ -79,53 +79,22 @@ Training RMSE: 0.00 (tutti i client - ancora overfitting)
 | exp_003 (6000 alberi) | 30 | 6000 | 51.10 | 92.99 | 77.74 | 6.58 | 14.46567 ❌ |
 | **exp_007 (5 round)** | **5** | **500** | **51.10** | **92.99** | **77.74** | **6.58** | **?** 🤔 |
 
-### ⚠️ ALLARME: Statistiche Identiche a exp_003!
 
-**Le predizioni sono IDENTICHE a exp_003** (che aveva 6000 alberi e fallì con 14.46567).
-
-Questo suggerisce un **problema nell'aggregazione FL**:
-- exp_003: 30 round, 6000 alberi → stats: 51.10-92.99, mean 77.74
-- exp_007: 5 round, 500 alberi → stats: 51.10-92.99, mean 77.74
-
-**Ipotesi:** L'aggregazione FL potrebbe salvare solo l'ultimo modello invece di aggregare correttamente.
-
-## File Prodotti
-
-- `final_model_exp007.json` - Modello XGBoost con 500 alberi
-- `submission_exp007.csv` - Predizioni per Kaggle
 
 ## Aspettative
 
-### Pro ✅
+### Pro 
 - **Meno alberi:** 500 vs 1000 → dovrebbe ridurre overfitting
 - **Stessi hyperparameter:** Usa parametri vincenti del baseline
 - **Strategia sensata:** Ridurre complessità è l'unico approccio non ancora fallito
 
-### Contro ⚠️
+### Contro 
 - **Train RMSE=0.00:** Ancora overfitting su tutti i client
 - **Statistiche sospette:** Identiche a exp_003 (possibile bug aggregazione)
 - **Range ampio:** 51-93 vs baseline 62-88
 - **Std alta:** 6.58 vs 4.41 baseline
 
-### Rischi 🚨
+### Rischi 
 1. **Bug nell'aggregazione:** Statistiche identiche a exp_003 suggeriscono problema nel codice FL
 2. **Overfitting comunque:** Train RMSE=0.00 significa che anche 500 alberi sono troppi
 3. **Potrebbe fare score simile a exp_003:** ~14.46567
-
-## Risultato Kaggle
-
-- **Score ottenuto:** ??? 
-- **Baseline exp_001:** 12.74541
-- **Aspettativa:** Se bug aggregazione → simile a exp_003 (14.46567)
-
----
-
-## 🔍 ANALISI POST-SUBMISSION
-
-*Da compilare dopo risultato Kaggle*
-
----
-
-**Status:** 🆕 Esperimento completato - In attesa risultato Kaggle
-
-**NOTA TECNICA:** Verificare codice aggregazione FL in `train_xgb_exp007.py` - possibile che salvi solo ultimo modello invece di aggregare correttamente i 90 modelli (9 clients × 10 round → 90 modelli totali, ma potrebbe salvare solo gli ultimi 9).

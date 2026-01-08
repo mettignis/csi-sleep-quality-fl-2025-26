@@ -54,7 +54,7 @@ def load_and_preprocess_test(test_path: str):
     
     print(f"   Feature finali: {len(data.columns)}")
     
-    # Rimuovi colonna 'id' se presente (non serve per predizione)
+    # Rimuovi colonna 'id' 
     if 'id' in data.columns:
         data = data.drop(columns=['id'])
         print(f"   Rimossa colonna 'id', feature finali: {len(data.columns)}")

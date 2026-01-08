@@ -2,7 +2,7 @@
 
 **Date:** 6 Gennaio 2026  
 **Status:** ✅ SUCCESS - New Best Score  
-**Kaggle Score:** 11.89067 MAE (3rd place)  
+**Kaggle Score:** 11.89067 MAE 
 **Improvement:** -0.036 MAE from exp_031 (11.92674)
 
 ---
@@ -49,7 +49,7 @@ Per ogni client dataset, abbiamo applicato 5 tecniche di augmentation generando 
 - Original: ~110 samples/client × 9 clients = 999 samples
 - Augmented: ~650 samples/client × 9 clients = **5904 samples** (~6x)
 
-**FL Compliance:** ✅ Augmentation eseguita PER-CLIENT prima del training (no data sharing)
+**FL Compliance:**  Augmentation eseguita PER-CLIENT prima del training (no data sharing)
 
 ---
 
@@ -136,16 +136,6 @@ Aggiunto codice per estrarre statistiche time series (mean, min, max, std) da:
 | RF    | 12.20          | 8.79            | **-3.41** (-28%) |
 | LGBM  | 10.88          | 8.58            | **-2.30** (-21%) |
 
-### Kaggle Submission
-
-**File:** `submission_exp039.csv`  
-**Predictions:**
-- Mean: 75.55
-- Std: 4.50
-- Min: 63.68
-- Max: 83.82
-
-**Kaggle Score:** **11.89067 MAE**
 
 **Result:** ✅ New best score! -0.036 improvement from exp_031
 
@@ -183,46 +173,9 @@ Aggiunto codice per estrarre statistiche time series (mean, min, max, std) da:
 4. **Preprocessing critical:** Identico preprocessing train/inference è essenziale
 5. **Incremental gain:** -0.036 MAE è small ma positivo, ogni passo conta
 
----
-
-## Next Steps (Considerati)
-
-### Se exp_039 < 11.70 MAE: ✅ Major success
-- Provare exp_040: hyperparameter tuning su augmented data
-- Expected: additional -0.10/-0.20 MAE
-
-### Se exp_039 11.70-11.90: Marginal improvement
-- Provare different augmentation factor (3x o 9x)
-- Adjust augmentation techniques
-
-### Se exp_039 > 11.90: Failed
-- Revert to exp_031 as active submission
-- Accept 3rd place
-
-**Actual result:** 11.89067 → marginal improvement category
-
----
-
-## Files Generated
-
-```
-exp_039_augmented_ensemble/
-├── train_rf_augmented.py          # RF training script (5904 samples)
-├── train_lgbm_augmented.py        # LGBM training script (5904 samples)
-├── generate_submission.py         # Ensemble + time series extraction
-├── rf_augmented_model.pkl         # RF model (17MB)
-├── lgbm_augmented_model.pkl       # LGBM model (233KB)
-├── submission_exp039.csv          # Final submission (189 predictions)
-├── training_rf.log                # RF training output
-└── training_lgbm.log              # LGBM training output
-```
 
 ---
 
 ## Conclusion
 
 exp_039 rappresenta un **pivot strategico riuscito** da optimization plateau a data augmentation. Validation improvements drammatici (-28%/-21%) dimostrano efficacia dell'approccio, anche se Kaggle gain è stato più modesto (-0.036 MAE).
-
-**Position:** Mantenuto 3° posto con nuovo best score (11.89067 MAE)  
-**Strategy validated:** Data augmentation è promettente per dataset FL piccoli  
-**Next experiment:** exp_040 proverà hyperparameter tuning esteso su augmented data

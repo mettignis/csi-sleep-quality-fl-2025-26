@@ -84,17 +84,17 @@
 
 ---
 
-## ❌ POST-MORTEM: Perché ha fallito anche questo?
+## Perché ha fallito?
 
 ### Problema: TROPPI ALBERI = OVERFITTING
 La regolarizzazione (eta=0.1, min_child_weight=3) **NON** è bastata a compensare:
 - **6000 alberi totali** (troppi per 697 campioni)
 - **30 round FL** (troppi cicli)
 
-### Lezioni apprese
-1. ❌ **6000 alberi >> 900 alberi baseline** → Overfitting inevitabile
-2. ❌ **Regolarizzazione non basta** se il modello è troppo complesso
-3. ✅ **Il baseline (900 alberi) aveva ragione** → era già dimensionato bene
+### Imparato che
+1. **6000 alberi >> 900 alberi baseline** → Overfitting inevitabile
+2. **Regolarizzazione non basta** se il modello è troppo complesso
+3. **Il baseline (900 alberi) aveva ragione** → era già dimensionato bene
 
 ### Confronto critico
 ```
@@ -103,17 +103,13 @@ exp_003: 30 round × 9 clients × 200 trees = 6000 alberi → 14.46 ❌
 exp_004: 30 round × 9 clients × 200 trees = 6000 alberi → 14.27 ❌
 ```
 
-### Strategia corretta per esperimenti futuri
+### Prossime strategie
 ✅ **Tornare a dimensioni baseline** (10 round, 100 alberi)  
 ✅ **Modificare solo 1-2 parametri** per volta  
 ✅ **Provare feature engineering** invece di più complessità  
 ✅ **Considerare ensemble** di modelli piccoli
 
-## File Prodotti
-
-- `final_model_exp004.json` - Modello XGBoost con hyperparameter ottimizzati
-- `submission_exp004.csv` - Predizioni per Kaggle
 
 ---
 
-**Status:** ❌ Esperimento fallito - Regolarizzazione non compensa troppa complessità
+**Status:** Esperimento fallito - Regolarizzazione non compensa troppa complessità

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 AGGRESSIVE GRID SEARCH for 4-way Ensemble Weight Optimization
 Testa 200+ combinazioni per trovare i pesi ottimali
@@ -38,24 +37,9 @@ val_data = full_data.iloc[split_idx:].copy()
 y_val = val_data['label'].values
 print(f"✅ Validation data: {len(y_val)} samples")
 
-# ============================================================================
-# 2. GENERAZIONE PREDIZIONI VALIDATION PER OGNI MODELLO
-# ============================================================================
-
-print("\n🎯 Generazione predizioni validation per ogni modello...")
-
-# Per generare predizioni validation, dobbiamo usare i modelli salvati
-# Invece, usiamo un approccio più semplice: assumiamo che le proporzioni
-# tra i modelli rimangano simili tra validation e test
-
-# Carichiamo le submission Kaggle e usiamo quelle come proxy
-# (non ideale ma pratico per grid search veloce)
-
-print("\n⚠️  Usando submission Kaggle come proxy per grid search")
-print("    (Le proporzioni tra modelli dovrebbero essere simili)")
 
 # ============================================================================
-# 3. CARICAMENTO SUBMISSION FILES
+# CARICAMENTO SUBMISSION FILES
 # ============================================================================
 
 print("\n📂 Caricamento submission files...")
@@ -102,7 +86,6 @@ print("\n" + "="*80)
 print("🔍 GRID SEARCH AGGRESSIVO SUI PESI")
 print("="*80)
 
-# Define aggressive grid
 # Range più ampio e step più fine
 rf_weights = np.arange(0.30, 0.56, 0.05)      # 30% to 55%, step 5%
 xgb_weights = np.arange(0.10, 0.36, 0.05)     # 10% to 35%, step 5%
@@ -235,9 +218,9 @@ print(f"   Mean: {best['mean']:.2f}, Std: {best['std']:.2f}")
 print(f"   Atteso: 11.50-11.80 MAE (stima)")
 
 print("\n" + "="*80)
-print("✅ GRID SEARCH COMPLETATO")
+print("GRID SEARCH COMPLETATO")
 print("="*80)
-print(f"\n📤 Submission pronta: submission_exp034_optimized.csv")
-print(f"📊 Top 5 weights salvati per reference")
-print(f"\n💡 NOTA: Score proxy != MAE Kaggle")
+print(f"\nSubmission pronta: submission_exp034_optimized.csv")
+print(f"Top 5 weights salvati per reference")
+print(f"\nNOTA: Score proxy != MAE Kaggle")
 print(f"   Testa su Kaggle per risultati reali!")

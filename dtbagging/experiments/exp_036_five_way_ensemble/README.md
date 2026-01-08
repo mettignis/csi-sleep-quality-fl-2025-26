@@ -51,23 +51,10 @@ Migliorare exp_031 (11.92674 MAE) aggiungendo una seconda variante di Random For
 
 ## Federated Learning Compliance
 
-✅ **Tutti i modelli FL-compliant**
+**Tutti i modelli FL-compliant**
 - Ogni modello trained separatamente su 9 client
 - Nessun training su dati combinati
 - Ensemble = post-processing puro (lecito)
-
-## Esecuzione
-
-```bash
-cd experiments/exp_036_five_way_ensemble
-python optimize_and_generate.py
-```
-
-**Output:**
-- `submission_exp036.csv` - Submission con best weights
-- `top10_weights_exp036.csv` - Top 10 combinazioni
-
-**Tempo:** ~30-40 minuti (grid search)
 
 ## Risultati Attesi
 

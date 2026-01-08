@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ESPERIMENTO 039 - Random Forest su dati AUGMENTED
 
@@ -34,11 +33,11 @@ RF_PARAMS = {
     'n_jobs': -1
 }
 
-print(f"\n⚙️  Parametri RF:")
+print(f"\n Parametri RF:")
 for k, v in RF_PARAMS.items():
     print(f"   {k}: {v}")
 
-# Carica e aggrega tutti i client
+# Carica client
 print(f"\n📊 Caricamento dati da 9 client...")
 
 all_data = []
@@ -52,57 +51,74 @@ for i in range(9):
     print(f"   ✓ Client {i}: {len(df)} samples")
     all_data.append(df)
 
-# Concatena tutti
-df_all = pd.concat(all_data, ignore_index=True)
-print(f"\n✅ Dataset totale: {len(df_all)} samples, {len(df_all.columns)} colonne")
+# 🔄 FEDERATED LEARNING: Allena 9 modelli separati (uno per client)
+print(f"\n✅ Dati caricati da {len(all_data)} client")
+print(f"\n🎯 Training Federated: 9 modelli separati...")
 
-# Split features/target
-feature_cols = [col for col in df_all.columns 
-                if col not in ['day', 'label', 'Unnamed: 0'] 
-                and df_all[col].dtype in ['int64', 'float64']]
+all_rf_models = []
+train_maes = []
+val_maes = []
 
-X = df_all[feature_cols]
-y = df_all['label']
+for i, df in enumerate(all_data):
+    print(f"\n👤 Client {i}:")
+    print(f"   Samples: {len(df)}")
+    
+    # Split features/target
+    feature_cols = [col for col in df.columns 
+                    if col not in ['day', 'label', 'Unnamed: 0'] 
+                    and df[col].dtype in ['int64', 'float64']]
+    
+    X = df[feature_cols]
+    y = df['label']
+    
+    # Fill NaN con median
+    X = X.fillna(X.median())
+    y = y.fillna(y.median())
+    
+    # Split train/val 80/20
+    split_idx = int(len(X) * 0.8)
+    X_train = X.iloc[:split_idx]
+    y_train = y.iloc[:split_idx]
+    X_val = X.iloc[split_idx:]
+    y_val = y.iloc[split_idx:]
+    
+    print(f"   Train: {len(X_train)}, Val: {len(X_val)}")
+    
+    # Training Random Forest per questo client
+    rf = RandomForestRegressor(**RF_PARAMS)
+    rf.fit(X_train, y_train)
+    
+    # Evaluation
+    y_train_pred = rf.predict(X_train)
+    y_val_pred = rf.predict(X_val)
+    
+    train_mae = mean_absolute_error(y_train, y_train_pred)
+    val_mae = mean_absolute_error(y_val, y_val_pred)
+    
+    print(f"   Train MAE: {train_mae:.2f}, Val MAE: {val_mae:.2f}")
+    
+    all_rf_models.append(rf)
+    train_maes.append(train_mae)
+    val_maes.append(val_mae)
 
-# Fill NaN con median (invece di rimuovere)
-X = X.fillna(X.median())
-y = y.fillna(y.median())
+# Media delle metriche
+avg_train_mae = np.mean(train_maes)
+avg_val_mae = np.mean(val_maes)
 
-print(f"\n✅ Dati puliti: {len(X)} samples, {len(feature_cols)} features")
+print(f"\n📊 RISULTATI AGGREGATI (media su 9 client):")
+print(f"   Train MAE: {avg_train_mae:.2f}")
+print(f"   Val MAE:   {avg_val_mae:.2f}")
 
-# Split train/val 80/20
-split_idx = int(len(X) * 0.8)
-X_train = X.iloc[:split_idx]
-y_train = y.iloc[:split_idx]
-X_val = X.iloc[split_idx:]
-y_val = y.iloc[split_idx:]
-
-print(f"   Train: {len(X_train)} samples")
-print(f"   Val:   {len(X_val)} samples")
-
-# Training
-print(f"\n🎯 Training Random Forest...")
-rf = RandomForestRegressor(**RF_PARAMS)
-rf.fit(X_train, y_train)
-
-# Evaluation
-y_train_pred = rf.predict(X_train)
-y_val_pred = rf.predict(X_val)
-
-train_mae = mean_absolute_error(y_train, y_train_pred)
-val_mae = mean_absolute_error(y_val, y_val_pred)
-
-print(f"\n📊 RISULTATI:")
-print(f"   Train MAE: {train_mae:.2f}")
-print(f"   Val MAE:   {val_mae:.2f}")
-
-# Salva modello
+# Salva TUTTI i 9 modelli per ensemble/bagging
 model_file = Path(__file__).parent / "rf_augmented_model.pkl"
 with open(model_file, 'wb') as f:
-    pickle.dump(rf, f)
+    pickle.dump(all_rf_models, f)
 
-print(f"\n💾 Modello salvato: {model_file.name}")
+print(f"\nModelli salvati: {model_file.name}")
+print(f"   Numero modelli FL: {len(all_rf_models)}")
+print(f"   Alberi per modello: {RF_PARAMS['n_estimators']}")
+print(f"   Alberi totali: {len(all_rf_models) * RF_PARAMS['n_estimators']}")
 
 print("\n" + "="*80)
-print("✅ Training RF completato")
+print("Training RF FEDERATED completato")
 print("="*80)

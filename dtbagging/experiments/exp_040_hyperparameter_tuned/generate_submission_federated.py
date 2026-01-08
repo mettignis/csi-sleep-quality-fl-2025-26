@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 EXP 040 - Generate Submission FEDERATED
 Usa modelli FL tuned (uno per client) e fa bagging predictions
@@ -68,7 +67,7 @@ def parse_series(s):
             return []
     return []
 
-# Extract time series statistics (CRITICAL - must match training!)
+# Extract time series statistics 
 print(f"\n🔄 Preprocessing test data...")
 test_data = df_test.copy()
 

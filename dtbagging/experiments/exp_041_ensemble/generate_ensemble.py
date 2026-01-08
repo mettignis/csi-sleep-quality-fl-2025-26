@@ -62,14 +62,5 @@ def main():
     submission.to_csv(output_path, index=False)
     print(f"\n✅ Submission saved: {output_path}")
     
-    # Decision thresholds
-    print("\n" + "="*70)
-    print("DECISION CRITERIA:")
-    print("="*70)
-    print("  🎯 If Kaggle < 11.87 MAE: SUCCESS! → Use submission 2 for weight optimization")
-    print("  😐 If Kaggle 11.87-11.91: MARGINAL → Save submission 2 for tomorrow")
-    print("  ❌ If Kaggle > 11.91 MAE: FAILURE → Revert to exp_039, don't waste submission 2")
-    print("\n  Reference: exp_039 = 11.89067 MAE, exp_031 = 11.92674 MAE")
-    
 if __name__ == "__main__":
     main()

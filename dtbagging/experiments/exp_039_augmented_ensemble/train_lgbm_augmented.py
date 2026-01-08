@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ESPERIMENTO 039 - LightGBM su dati AUGMENTED
 
@@ -60,70 +59,88 @@ for i in range(9):
     print(f"   ✓ Client {i}: {len(df)} samples")
     all_data.append(df)
 
-# Concatena tutti
-df_all = pd.concat(all_data, ignore_index=True)
-print(f"\n✅ Dataset totale: {len(df_all)} samples, {len(df_all.columns)} colonne")
+# 🔄 FEDERATED LEARNING: Allena 9 modelli separati (uno per client)
+print(f"\n✅ Dati caricati da {len(all_data)} client")
+print(f"\n🎯 Training Federated: 9 modelli separati...")
 
-# Split features/target
-feature_cols = [col for col in df_all.columns 
-                if col not in ['day', 'label', 'Unnamed: 0'] 
-                and df_all[col].dtype in ['int64', 'float64']]
+all_lgbm_models = []
+train_maes = []
+val_maes = []
+best_iters = []
 
-X = df_all[feature_cols]
-y = df_all['label']
+for i, df in enumerate(all_data):
+    print(f"\n👤 Client {i}:")
+    print(f"   Samples: {len(df)}")
+    
+    # Split features/target
+    feature_cols = [col for col in df.columns 
+                    if col not in ['day', 'label', 'Unnamed: 0'] 
+                    and df[col].dtype in ['int64', 'float64']]
+    
+    X = df[feature_cols]
+    y = df['label']
+    
+    # Fill NaN con median
+    X = X.fillna(X.median())
+    y = y.fillna(y.median())
+    
+    # Split train/val 80/20
+    split_idx = int(len(X) * 0.8)
+    X_train = X.iloc[:split_idx]
+    y_train = y.iloc[:split_idx]
+    X_val = X.iloc[split_idx:]
+    y_val = y.iloc[split_idx:]
+    
+    print(f"   Train: {len(X_train)}, Val: {len(X_val)}")
+    
+    # Crea dataset LightGBM
+    lgb_train = lgb.Dataset(X_train, y_train)
+    lgb_val = lgb.Dataset(X_val, y_val, reference=lgb_train)
+    
+    # Training LightGBM per questo client
+    model = lgb.train(
+        LGBM_PARAMS,
+        lgb_train,
+        num_boost_round=500,
+        valid_sets=[lgb_train, lgb_val],
+        callbacks=[
+            lgb.early_stopping(stopping_rounds=50),
+            lgb.log_evaluation(period=0)  # Silent
+        ]
+    )
+    
+    # Evaluation
+    y_train_pred = model.predict(X_train)
+    y_val_pred = model.predict(X_val)
+    
+    train_mae = mean_absolute_error(y_train, y_train_pred)
+    val_mae = mean_absolute_error(y_val, y_val_pred)
+    
+    print(f"   Train MAE: {train_mae:.2f}, Val MAE: {val_mae:.2f}, Best iter: {model.best_iteration}")
+    
+    all_lgbm_models.append(model)
+    train_maes.append(train_mae)
+    val_maes.append(val_mae)
+    best_iters.append(model.best_iteration)
 
-# Fill NaN con median (invece di rimuovere)
-X = X.fillna(X.median())
-y = y.fillna(y.median())
+# Media delle metriche
+avg_train_mae = np.mean(train_maes)
+avg_val_mae = np.mean(val_maes)
+avg_best_iter = np.mean(best_iters)
 
-print(f"\n✅ Dati puliti: {len(X)} samples, {len(feature_cols)} features")
+print(f"\n📊 RISULTATI AGGREGATI (media su 9 client):")
+print(f"   Train MAE: {avg_train_mae:.2f}")
+print(f"   Val MAE:   {avg_val_mae:.2f}")
+print(f"   Best iteration (avg): {avg_best_iter:.1f}")
 
-# Split train/val 80/20
-split_idx = int(len(X) * 0.8)
-X_train = X.iloc[:split_idx]
-y_train = y.iloc[:split_idx]
-X_val = X.iloc[split_idx:]
-y_val = y.iloc[split_idx:]
-
-print(f"   Train: {len(X_train)} samples")
-print(f"   Val:   {len(X_val)} samples")
-
-# Crea dataset LightGBM
-lgb_train = lgb.Dataset(X_train, y_train)
-lgb_val = lgb.Dataset(X_val, y_val, reference=lgb_train)
-
-# Training
-print(f"\n🎯 Training LightGBM...")
-model = lgb.train(
-    LGBM_PARAMS,
-    lgb_train,
-    num_boost_round=500,
-    valid_sets=[lgb_train, lgb_val],
-    callbacks=[
-        lgb.early_stopping(stopping_rounds=50),
-        lgb.log_evaluation(period=50)
-    ]
-)
-
-# Evaluation
-y_train_pred = model.predict(X_train)
-y_val_pred = model.predict(X_val)
-
-train_mae = mean_absolute_error(y_train, y_train_pred)
-val_mae = mean_absolute_error(y_val, y_val_pred)
-
-print(f"\n📊 RISULTATI:")
-print(f"   Train MAE: {train_mae:.2f}")
-print(f"   Val MAE:   {val_mae:.2f}")
-print(f"   Best iteration: {model.best_iteration}")
-
-# Salva modello
+# Salva TUTTI i 9 modelli per ensemble/bagging
 model_file = Path(__file__).parent / "lgbm_augmented_model.pkl"
 with open(model_file, 'wb') as f:
-    pickle.dump(model, f)
+    pickle.dump(all_lgbm_models, f)
 
-print(f"\n💾 Modello salvato: {model_file.name}")
+print(f"\n💾 Modelli salvati: {model_file.name}")
+print(f"   Numero modelli FL: {len(all_lgbm_models)}")
 
 print("\n" + "="*80)
-print("✅ Training LightGBM completato")
+print("✅ Training LightGBM FEDERATED completato")
 print("="*80)

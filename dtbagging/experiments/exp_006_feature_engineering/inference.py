@@ -34,7 +34,7 @@ def load_and_preprocess_test(test_path: str):
     print(f"   Campioni originali: {len(data)}")
     print(f"   Colonne originali: {len(data.columns)}")
     
-    # Preprocessing time-series (IDENTICO AL TRAINING)
+    # Preprocessing time-series 
     timeseries_cols = ['hr_time_series', 'resp_time_series', 'stress_time_series']
     
     for col in timeseries_cols:
@@ -60,10 +60,9 @@ def load_and_preprocess_test(test_path: str):
         data.insert(0, 'Unnamed: 0', range(len(data)))
     
     if 'day' not in data.columns:
-        # Genera valori day fittizi (il modello li ha visti nel training)
         data.insert(1, 'day', range(len(data)))
     
-    # FEATURE ENGINEERING! 🔧
+    # FEATURE ENGINEERING
     original_features = len(data.columns)
     data = add_engineered_features(data)
     new_features = len(data.columns)
@@ -145,5 +144,4 @@ if __name__ == "__main__":
     test_path = Path(__file__).parent / "x_test.csv"
     output_path = exp_dir / "submission_exp006.csv"
     
-    # Genera submission
     generate_submission(str(model_path), str(test_path), str(output_path))

@@ -109,15 +109,7 @@ def main():
     output_path = f"submission_exp042_w{int(best_option['w1']*100)}{int(best_option['w2']*100)}.csv"
     submission.to_csv(output_path, index=False)
     print(f"✅ Saved: {output_path}")
-    
-    # Decision criteria
-    print("\n" + "="*70)
-    print("DECISION CRITERIA:")
-    print("="*70)
-    print(f"  Current best: 11.79207 MAE (exp_041 with 0.5/0.5)")
-    print(f"\n  🎯 If this looks clearly better locally → SUBMIT")
-    print(f"  😐 If marginal difference → SAVE for tomorrow")
-    print(f"  ❌ If looks same/worse → KEEP exp_041 as best, save submission")
+ 
 
 if __name__ == "__main__":
     main()

@@ -83,7 +83,7 @@ Training RMSE: 0.00 (perfetto fit sui dati di training)
 
 ---
 
-## ❌ POST-MORTEM: Perché ha fallito?
+## Perché ha fallito?
 
 ### Problema: OVERFITTING SEVERO
 1. **Train RMSE = 0.00** → Memorizzazione perfetta dei dati di training
@@ -95,10 +95,10 @@ Training RMSE: 0.00 (perfetto fit sui dati di training)
 - **Learning rate alto (0.3)** → apprendimento troppo aggressivo
 - **Nessun controllo overfitting** (min_child_weight=1)
 
-### Lezione appresa
-✅ **Più parametri ≠ Modello migliore**  
-✅ **Regolarizzazione è fondamentale** su dataset piccoli (697 campioni)  
-✅ **Train RMSE = 0.00 è red flag** → Overfitting garantito
+### Imparato che
+**Più parametri ≠ Modello migliore**  
+**Regolarizzazione è fondamentale** su dataset piccoli (697 campioni)  
+**Train RMSE = 0.00 è red flag** → Overfitting garantito
 
 ### Soluzione: Esperimento 004
 - Learning rate ↓ (0.3 → 0.1)
@@ -107,4 +107,4 @@ Training RMSE: 0.00 (perfetto fit sui dati di training)
 
 ---
 
-**Status:** ❌ Esperimento fallito - Non usare questo modello
+**Status:** Esperimento fallito - Non usare questo modello

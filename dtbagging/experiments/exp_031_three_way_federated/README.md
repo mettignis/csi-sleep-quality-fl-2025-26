@@ -147,35 +147,4 @@ prediction = 0.50 × RF_advanced + 0.30 × XGBoost + 0.20 × LightGBM_bagging
 | **exp_016** | 3-way ensemble | **11.73** | ❌ | Centralizzato (reference) |
 | **exp_031** | 3-way ensemble FL | **11.5-11.8?** | ✅ | **NEW** |
 
-## File Generati
 
-- `train_lightgbm_exp031.py`: Training LightGBM federated (9 clients)
-- `lgbm_models_federated_exp031.pkl`: 9 modelli LightGBM salvati
-- `training_metrics_exp031.pkl`: Metriche training per client
-- `inference_exp031.py`: Genera ensemble three-way
-- `submission_exp031.csv`: Submission finale Kaggle
-
-## Next Steps se fallisce
-
-Se exp_031 non migliora (>12.01 MAE):
-
-1. **exp_032:** Weight optimization via grid search locale
-   - Test 125 combinazioni pesi (50-60% RF, 20-35% XGB, 10-25% LGBM)
-   - Split validation 799/200 temporale
-   - Atteso: -0.05/-0.15 MAE
-
-2. **exp_033:** LightGBM tuning + retraining
-   - max_depth=8, learning_rate=0.03, num_leaves=50
-   - Più round (300)
-   - Atteso: Val MAE 9.5-10.0 (vs 10.88)
-
-3. **exp_034:** Four-way con CatBoost federated
-   - Aggiungi CatBoost trainato per client
-   - 45% RF + 25% XGB + 20% LGBM + 10% Cat
-   - Atteso: 11.4-11.7 MAE
-
-## Conclusioni
-
-exp_031 è il primo three-way ensemble **FEDERATED COMPLIANT** del progetto. Tutti i componenti rispettano i requisiti FL della challenge. Atteso miglioramento significativo (-0.20/-0.50 MAE) grazie alla diversificazione con LightGBM.
-
-**Key Innovation:** Bagging di 9 modelli LightGBM per mantenere FL compliance pur sfruttando tutti i dati dei clients.

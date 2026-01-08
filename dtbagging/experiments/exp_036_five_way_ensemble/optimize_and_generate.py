@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ESPERIMENTO 036 - FIVE-WAY ENSEMBLE WITH DUAL RF
 
@@ -189,7 +188,7 @@ print(f"   Mean: {best['mean']:.2f}, Std: {best['std']:.2f}")
 print(f"   Atteso: 11.60-11.85 MAE (stima)")
 
 print("\n" + "="*80)
-print("✅ GRID SEARCH COMPLETATO")
+print("GRID SEARCH COMPLETATO")
 print("="*80)
-print("\n📤 Submission pronta: submission_exp036.csv")
-print("💡 Dual RF potrebbe catturare pattern complementari!")
+print("\nSubmission pronta: submission_exp036.csv")
+print("Dual RF potrebbe catturare pattern complementari!")

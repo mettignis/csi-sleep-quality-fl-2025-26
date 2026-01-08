@@ -103,26 +103,21 @@ Training RMSE: 0.00 (tutti i client)
 | exp_005 (conservative) | 40 | 65.85 | 92.32 | 80.43 | 4.80 | 13.88667 ❌ |
 | **exp_006 (feature eng)** | **60** | **25.73** | **95.24** | **78.60** | **9.52** | **14.83370** ❌❌ |
 
-## File Prodotti
-
-- `final_model_exp006.json` - Modello XGBoost con 1000 alberi e 60 features
-- `submission_exp006.csv` - Predizioni per Kaggle
-- `feature_engineering.py` - Modulo con funzione `add_engineered_features()`
 
 ## Aspettative
 
-### Pro ✅
+### Pro 
 - **Feature più informative:** Cattura relazioni complesse (hr×stress, sleep ratios)
 - **Parametri ottimali:** Usa esattamente parametri vincenti del baseline
 - **Generalizzazione:** Feature ingegnerizzate dovrebbero aiutare a generalizzare
 
-### Contro ⚠️
+### Contro 
 - **Range molto ampio:** Min 25.73 è MOLTO basso (baseline min 62.21)
 - **Std molto alta:** 9.52 vs 4.41 baseline → maggiore incertezza
 - **Mean più alta:** 78.60 vs 75.12 → possibile bias verso l'alto
 - **Possibile overfitting:** Train RMSE=0.00 su tutti i client
 
-### Segnali Preoccupanti 🚨
+### Segnali Meh 
 1. **Min 25.73** → Predizione estrema, probabilmente errata
 2. **Std 9.52** → Più del doppio del baseline (4.41)
 3. **Range amplissimo** → 25-95 vs baseline 62-88
@@ -137,7 +132,7 @@ Training RMSE: 0.00 (tutti i client)
 
 ---
 
-## ❌❌ POST-MORTEM: Perché ha fallito MALISSIMO?
+## Perché ha fallito, pure MALISSIMO direi?
 
 ### Problema Principale: OVERFITTING AMPLIFICATO
 
@@ -151,9 +146,9 @@ Training RMSE: 0.00 (tutti i client)
 
 #### 2. Feature Engineered = Rumore
 Le feature aggiunte probabilmente hanno catturato:
-- ✅ **Pochi pattern reali**
-- ❌ **Molto rumore specifico del training set**
-- ❌ **Correlazioni spurie** che non generalizzano
+- **Pochi pattern reali**
+- **Molto rumore specifico del training set**
+- **Correlazioni spurie** che non generalizzano
 
 Esempio: `hr_stress_interaction` potrebbe essere correlata al training set ma non al test
 
@@ -184,15 +179,8 @@ Esempio: `hr_stress_interaction` potrebbe essere correlata al training set ma no
    - Catturano pattern molto specifici
    - Alto rischio di imparare correlazioni casuali
 
-### Lezioni Apprese
 
-#### ❌ Cosa NON Funziona
-1. ~~Più alberi (exp_003: 6000 trees)~~
-2. ~~Hyperparameter tuning (exp_004, exp_005)~~
-3. ~~Feature engineering massiccio (exp_006: +18 features)~~
-4. ~~Qualsiasi modifica che aumenta complessità~~
-
-#### ✅ Cosa Sappiamo Funziona
+#### Cosa Funziona
 - **exp_001 baseline**: 10 rounds, 100 trees, 40 features
 - **Parametri**: lr=0.3, depth=6, subsample=0.8
 - **Score**: 12.74541
@@ -225,17 +213,17 @@ Esempio: `hr_stress_interaction` potrebbe essere correlata al training set ma no
 **6 esperimenti consecutivi hanno TUTTI fatto peggio del baseline.**
 
 Il problema NON è:
-- ❌ Pochi alberi
-- ❌ Parametri sbagliati
-- ❌ Feature insufficienti
+- Pochi alberi
+- Parametri sbagliati
+- Feature insufficienti
 
 Il problema È:
-- ✅ **Dataset piccolo (697 campioni)**
-- ✅ **Facilità di overfitting**
-- ✅ **Baseline già vicino al limite della generalizzazione**
+- **Dataset piccolo (697 campioni)**
+- **Facilità di overfitting**
+- **Baseline già vicino al limite della generalizzazione**
 
 **Prossimo approccio: SEMPLIFICARE, non complicare**
 
 ---
 
-**Status:** ❌ FALLITO - Feature engineering ha PEGGIORATO le cose (+2.09 punti)
+**Status:** FALLITO - Feature engineering ha PEGGIORATO le cose (+2.09 punti)

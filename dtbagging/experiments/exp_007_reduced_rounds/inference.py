@@ -138,5 +138,4 @@ if __name__ == "__main__":
     test_path = Path(__file__).parent / "x_test.csv"
     output_path = exp_dir / "submission_exp007.csv"
     
-    # Genera submission
     generate_submission(str(model_path), str(test_path), str(output_path))

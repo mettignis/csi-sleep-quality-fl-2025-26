@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ESPERIMENTO 038 - TWO BEST ENSEMBLE
 

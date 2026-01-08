@@ -70,7 +70,7 @@ prediction_ensemble = 0.7 × prediction_RF + 0.3 × prediction_XGBoost
 | Min | 68.77 | 62.21 | **63.95** |
 | Max | 78.35 | 88.24 | **80.74** |
 | Range | 9.58 | 26.03 | **16.79** |
-| Score | 12.45205 | 12.74541 | **12.16010** ✅✅✅ |
+| Score | 12.45205 | 12.74541 | **12.16010** ✅|
 
 ### Analisi
 
@@ -84,13 +84,11 @@ prediction_ensemble = 0.7 × prediction_RF + 0.3 × prediction_XGBoost
 - Non troppo variabile come XGBoost
 - Middle ground che potrebbe catturare il meglio
 
-## File Prodotti
 
-- `submission_exp012.csv` - Ensemble 70% RF + 30% XGBoost
 
 ## Aspettative
 
-### Pro ✅
+### Pro 
 1. **Ensemble di algoritmi diversi** tipicamente batte singoli modelli
 2. **Std ottimale:** 3.58 tra 2.24 (troppo basso) e 7.84 (troppo alto)
 3. **Basso rischio:** combina 2 modelli già ottimi (12.45 e 12.74)
@@ -98,7 +96,7 @@ prediction_ensemble = 0.7 × prediction_RF + 0.3 × prediction_XGBoost
    - RF: no overfitting, stabile
    - XGBoost: cattura pattern complessi, più flessibile
 
-### Contro ⚠️
+### Contro 
 1. **Potrebbe non battere RF da solo:** exp_008 (12.45) è già eccellente
 2. **XGBoost introduce rumore:** std 7.84 molto alta
 3. **Weight 70/30:** forse troppo peso a RF?
@@ -119,19 +117,19 @@ prediction_ensemble = 0.7 × prediction_RF + 0.3 × prediction_XGBoost
 
 ## Risultato Kaggle
 
-- **Score ottenuto:** 12.16010 ✅✅✅ **NUOVO BEST!**
+- **Score ottenuto:** 12.16010 ✅ **NUOVO BEST!**
 - **exp_008 (RF):** 12.45205
 - **Miglioramento:** -0.29 punti (2.3% meglio)
 - **vs baseline XGBoost:** -0.58 punti (4.6% meglio)
 
 ---
 
-## ✅✅✅ POST-MORTEM: Perché ha FUNZIONATO BENISSIMO?
+## Perché ha funzionato? e pure BENISSIMO?
 
 ### Successo Straordinario
 
 **Score progression:**
-1. 🥇 **exp_012 (Ensemble): 12.16010** ✅✅✅ **BEST**
+1. 🥇 **exp_012 (Ensemble): 12.16010** ✅**BEST**
 2. 🥈 exp_008 (RF improved): 12.45205 (-0.29)
 3. 🥉 exp_001 (XGBoost baseline): 12.74541 (-0.58)
 
@@ -264,7 +262,7 @@ Dataset piccolo (<1000 samples)
 
 ---
 
-**Status:** ✅✅✅ **SUCCESSO STRAORDINARIO! NUOVO RECORD ASSOLUTO!**
+**Status:** Gran successo
 
 **🏆 CLASSIFICA FINALE:**
 1. 🥇 exp_012: 12.16010 (Ensemble)

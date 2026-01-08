@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 EXP 040 - Random Forest FEDERATED Hyperparameter Tuning
 Grid search ESTESA per-client (vero FL) - trova best params per ogni client
@@ -45,7 +44,6 @@ combinations_per_client = (len(param_grid['n_estimators']) *
 
 print(f"   Combinazioni per client: {combinations_per_client}")
 print(f"   Totale (9 clients): {combinations_per_client * 9}")
-print(f"\n⏱️  Tempo stimato: 2-3 ore\n")
 
 # Dizionari per salvare risultati
 client_models = {}

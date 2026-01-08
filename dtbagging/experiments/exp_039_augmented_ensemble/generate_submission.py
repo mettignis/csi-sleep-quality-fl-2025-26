@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ESPERIMENTO 039 - Ensemble finale con modelli AUGMENTED
 
@@ -22,12 +21,22 @@ print("\n📂 Caricamento modelli augmented...")
 model_dir = Path(__file__).parent
 
 with open(model_dir / "rf_augmented_model.pkl", 'rb') as f:
-    rf_model = pickle.load(f)
-print("✅ RF model caricato")
+    rf_models = pickle.load(f)  # Lista di 9 modelli FL
+
+if isinstance(rf_models, list):
+    print(f"✅ RF models caricati: {len(rf_models)} modelli FL (bagging)")
+else:
+    print("⚠️  Caricato singolo modello RF (non FL), converto a lista")
+    rf_models = [rf_models]
 
 with open(model_dir / "lgbm_augmented_model.pkl", 'rb') as f:
-    lgbm_model = pickle.load(f)
-print("✅ LightGBM model caricato")
+    lgbm_models = pickle.load(f)  # Lista di 9 modelli FL o singolo
+    
+if isinstance(lgbm_models, list):
+    print(f"✅ LightGBM models caricati: {len(lgbm_models)} modelli FL (bagging)")
+else:
+    print("⚠️  Caricato singolo modello LGBM (non FL), converto a lista")
+    lgbm_models = [lgbm_models]
 
 # Carica test data
 BASE_DIR = model_dir.parent.parent
@@ -37,7 +46,7 @@ print(f"\n📂 Caricamento test data: {test_file}")
 df_test = pd.read_csv(test_file, sep=';')
 print(f"✅ Test data: {len(df_test)} samples, {len(df_test.columns)} colonne")
 
-# Preprocessing (come training) - ESTRAE STATISTICHE TIME SERIES!
+# Preprocessing (come training) 
 print("\n🔄 Preprocessing test data...")
 
 # Estrai statistiche dalle time series (come exp_031)
@@ -88,8 +97,8 @@ if X_test.isna().any().any():
 
 print(f"✅ X_test preparato: {X_test.shape}")
 
-# Get feature names from models
-rf_features = rf_model.feature_names_in_
+# Get feature names from primo modello RF
+rf_features = rf_models[0].feature_names_in_
 print(f"   RF si aspetta {len(rf_features)} features")
 
 # Align features
@@ -103,11 +112,28 @@ if missing_features:
 X_test = X_test[rf_features]
 print(f"✅ X_test allineato: {X_test.shape}")
 
-# Predizioni
-print("\n🎯 Generazione predizioni...")
+# Predizioni FEDERATED (Bagging)
+print("\n🎯 Generazione predizioni FEDERATED (bagging)...")
 
-rf_pred = rf_model.predict(X_test)
-lgbm_pred = lgbm_model.predict(X_test)
+# RF: Media delle predizioni di 9 modelli
+rf_preds = []
+for i, rf_model in enumerate(rf_models):
+    pred = rf_model.predict(X_test)
+    rf_preds.append(pred)
+    print(f"   RF client {i}: mean={pred.mean():.2f}, std={pred.std():.2f}")
+
+rf_pred = np.mean(rf_preds, axis=0)  # Bagging: media
+print(f"   RF ENSEMBLE: mean={rf_pred.mean():.2f}, std={rf_pred.std():.2f}")
+
+# LightGBM: Media delle predizioni di 9 modelli
+lgbm_preds = []
+for i, lgbm_model in enumerate(lgbm_models):
+    pred = lgbm_model.predict(X_test)
+    lgbm_preds.append(pred)
+    print(f"   LGBM client {i}: mean={pred.mean():.2f}, std={pred.std():.2f}")
+
+lgbm_pred = np.mean(lgbm_preds, axis=0)  # Bagging: media
+print(f"   LGBM ENSEMBLE: mean={lgbm_pred.mean():.2f}, std={lgbm_pred.std():.2f}")
 
 print(f"   RF:      mean={rf_pred.mean():.2f}, std={rf_pred.std():.2f}")
 print(f"   LightGBM: mean={lgbm_pred.mean():.2f}, std={lgbm_pred.std():.2f}")

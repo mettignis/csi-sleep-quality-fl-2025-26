@@ -101,7 +101,7 @@ Alberi totali finali: 1,000
 
 ---
 
-## ❌ POST-MORTEM: Perché è fallito?
+## Perché è fallito?
 
 ### Problema: Mean troppo alta
 La predizione aveva **mean=80.43** vs baseline **mean=75.12** (+5.31 punti)
@@ -114,21 +114,16 @@ La predizione aveva **mean=80.43** vs baseline **mean=75.12** (+5.31 punti)
 3. **Combinazione sbagliata** dei due parametri
 
 ### Lezione appresa
-❌ **Anche modifiche "conservative" possono peggiorare** se sbagliate  
-❌ **Mean spostata = bias sistematico** → errore garantito  
-✅ **Il baseline era già ottimale** per questi dati
+**Anche modifiche "conservative" possono peggiorare** se sbagliate  
+**Mean spostata = bias sistematico** → errore garantito  
+**Il baseline era già ottimale** per questi dati
 
 ### Conclusione
 **TUTTI gli esperimenti (003, 004, 005) hanno fallito nel battere il baseline.**
 
 Il baseline exp_001 (12.74541) rimane il migliore.
 
-## File Prodotti
-
-- `final_model_exp005.json` - Modello XGBoost 1000 alberi
-- `submission_exp005.csv` - Predizioni per Kaggle
-
 ---
 
-**Status:** ❌ Esperimento fallito - Peggio del baseline
+**Status:** Esperimento fallito - Peggio del baseline
 

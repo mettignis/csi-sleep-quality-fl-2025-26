@@ -191,14 +191,14 @@ def train_lightgbm_federated():
     with open(model_file, 'wb') as f:
         pickle.dump(all_models, f)
     
-    print(f"\n✅ Salvati {len(all_models)} modelli in: {model_file}")
+    print(f"\nSalvati {len(all_models)} modelli in: {model_file}")
     
     # Salva metriche
     metrics_file = exp_dir / "training_metrics_exp031.pkl"
     with open(metrics_file, 'wb') as f:
         pickle.dump(all_metrics, f)
     
-    print(f"✅ Salvate metriche in: {metrics_file}")
+    print(f"Salvate metriche in: {metrics_file}")
     
     return all_models, all_metrics
 

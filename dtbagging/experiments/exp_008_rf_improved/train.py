@@ -17,7 +17,7 @@ def load_data_for_rf(partition_id, test_fraction=0.2):
         print(f"⚠️  Nessun file trovato per partition {partition_id}")
         return None, None, None, None
     
-    # Carica e unisci tutti i CSV
+    # Carica CSV
     dfs = []
     for csv_file in csv_files:
         df = pd.read_csv(csv_file, sep=';')

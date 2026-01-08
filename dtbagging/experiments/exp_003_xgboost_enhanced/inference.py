@@ -1,5 +1,5 @@
 """Inference per Esperimento 003 - XGBoost Potenziato"""
-print("⏳ Avvio script... (caricamento librerie)")
+print("Avvio script... (caricamento librerie)")
 
 import xgboost as xgb
 import pandas as pd
@@ -8,7 +8,7 @@ from pathlib import Path
 
 def load_test_data():
     """Carica e prepara i dati di test"""
-    print("\n📂 Caricamento dati di test...")
+    print("\nCaricamento dati di test...")
     
     # Percorso al file di test
     test_path = Path(__file__).parent / "x_test.csv"
@@ -16,14 +16,14 @@ def load_test_data():
     if not test_path.exists():
         raise FileNotFoundError(f"File di test non trovato: {test_path}")
     
-    # Carica dati (separatore ;)
+    # Carica dati 
     data = pd.read_csv(test_path, sep=';')
     print(f"   Shape iniziale: {data.shape}")
     
     # Salva ID per submission
     test_ids = data['id'].values
     
-    # Time-series preprocessing (UGUALE a inference.py originale)
+    # Time-series preprocessing
     print("   📊 Preprocessing time-series...")
     timeseries_cols = ['hr_time_series', 'resp_time_series', 'stress_time_series']
     
@@ -73,7 +73,7 @@ def main():
     print("🔮 INFERENCE - ESPERIMENTO 003")
     print("="*70)
     
-    # Carica modello da experiments/
+    # Carica modello 
     model_path = Path(__file__).parent / "experiments" / "exp_003_xgboost_enhanced" / "final_model_exp003.json"
     print(f"\n📥 Caricamento modello da: experiments/exp_003_xgboost_enhanced/{model_path.name}")
     

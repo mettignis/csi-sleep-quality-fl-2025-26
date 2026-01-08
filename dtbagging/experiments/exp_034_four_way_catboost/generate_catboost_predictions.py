@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Generate REAL CatBoost predictions for test set
 Processa x_test.csv come i client e applica i 9 modelli CatBoost
@@ -31,7 +30,7 @@ print("\n📂 Caricamento e processamento x_test.csv...")
 BASE_DIR = Path(__file__).parent.parent.parent
 test_file = BASE_DIR / "x_test.csv"
 
-# Carica test data (semicolon-separated!)
+# Carica test data
 test_data = pd.read_csv(test_file, sep=';')
 print(f"✅ Test data caricato: {len(test_data)} samples, {len(test_data.columns)} colonne")
 
@@ -39,7 +38,7 @@ print(f"✅ Test data caricato: {len(test_data)} samples, {len(test_data.columns
 # Rimuovi colonne vuote
 test_data = test_data.dropna(axis=1, how='all')
 
-# Seleziona feature numeriche (same logic as training)
+# Seleziona feature numeriche 
 feature_cols = [col for col in test_data.columns 
                 if col not in ['day', 'label', 'Unnamed: 0', 'id'] 
                 and not col.endswith('_time_series')
@@ -50,7 +49,7 @@ print(f"✅ Feature selezionate: {len(feature_cols)} colonne")
 # Extract features
 X_test = test_data[feature_cols]
 
-# Handle NaN (fill with median from training if needed)
+# Handle NaN 
 if X_test.isna().any().any():
     print(f"⚠️  Trovati NaN, filling con median...")
     X_test = X_test.fillna(X_test.median())

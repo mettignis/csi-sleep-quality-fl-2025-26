@@ -106,7 +106,7 @@ def train_xgb_reduced_rounds(num_rounds=5, n_estimators=100):
             
         print(f"✓ Round {round_num + 1} completato")
     
-    # Salva modello finale in experiments/
+    # Salva modello finale 
     exp_dir = Path(__file__).parent / "experiments" / "exp_007_reduced_rounds"
     exp_dir.mkdir(parents=True, exist_ok=True)
     output_path = exp_dir / "final_model_exp007.json"
