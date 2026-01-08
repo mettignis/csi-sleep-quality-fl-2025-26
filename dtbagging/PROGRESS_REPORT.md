@@ -101,7 +101,7 @@
 - **Score:** 12.45205 MAE
 - **Result:** ✅ **Best RF model**, beat baseline RF by 0.51 MAE
 
-**exp_014: RF with Advanced Time-Series Features** 🎯
+**exp_014: RF with Advanced Time-Series Features** ❌ **INVALIDATED**
 - **Approach:** Extract rich statistical features from time-series
 - **Theory:** Sleep quality encoded in higher-order statistics (skewness, kurtosis, percentiles, entropy)
 - **Features:** 105 total → SelectKBest(k=25)
@@ -111,8 +111,9 @@
   - Trend: slope, R²
   - Temporal: autocorrelation, peaks
   - Information: entropy, energy
-- **Score:** 12.19651 MAE
-- **Result:** ✅ **Best single model**, advanced features captured sleep patterns effectively
+- **Score:** 12.19651 MAE (submitted to Kaggle)
+- **FL Violation:** Lines 293-294 `pd.concat(all_X_train)` aggregates ALL 9 clients for feature selection
+- **Status:** ❌ **CENTRALIZED TRAINING** - invalidated on 8 Gen 2026
 
 ---
 
@@ -126,31 +127,39 @@
 - **Score:** 12.16010 MAE
 - **Result:** ✅ First significant breakthrough (-0.29 vs RF alone)
 
-**exp_015: Two-Way Advanced Ensemble** 🥇
+**exp_015: Two-Way Advanced Ensemble** ❌ **INVALIDATED**
 - **Approach:** Best RF (advanced features) + XGBoost baseline
 - **Theory:** RF with advanced features (12.20) should outperform base RF in ensemble
 - **Formula:** `0.70 × RF_advanced + 0.30 × XGBoost_baseline`
-- **Hypothesis:** Better base model → better ensemble
-- **Score:** 12.01004 MAE ✅
-- **Result:** 🥇 **BEST VALID SCORE** - Confirmed hypothesis, advanced features generalize well
+- **Score:** 12.01004 MAE (submitted to Kaggle)
+- **FL Violation:** Based on exp_014 which uses centralized feature selection
+- **Status:** ❌ **INVALID** - exp_014 component is centralized, invalidated on 8 Gen 2026
 
 ---
 
 ### Phase 4: Critical Error - Centralized Training Discovery ⚠️
 
-**exp_017-030: Invalidated Experiments** ❌
+**exp_014-015, 017-030, 039 (original): Invalidated Experiments** ❌
 
-During the advanced optimization phase (experiments 017–030), we inadvertently used a data-loading function that concatenated the datasets of all 9 clients before training, violating the Federated Learning requirements of the challenge. This mistake went unnoticed because the code correctly loaded the files by group but then aggregated them into a single centralized DataFrame. By reusing the same function afterward, we failed to realize the error.
+Durante il progetto, abbiamo scoperto MULTIPLE violazioni FL in momenti diversi:
 
-**Affected experiments:**
+**Prima scoperta (4 Gen 2026):** exp_017-030
+- Funzione di caricamento dati concatenava tutti i 9 clients prima del training
+- ~10 submission sprecate, best score invalido: 11.18725 MAE (exp_024)
 
-- exp_017–021: Centralized weight optimization & stacking
-- exp_024–030: Advanced ensembles and centralized meta-learners
-- **Best score (invalid):** 11.18725 MAE (exp_024) – temporary 3rd place
+**Seconda scoperta (8 Gen 2026):** exp_014, 015, 039 originale
+- **exp_014:** Feature selection centralizzata (righe 293-294: `pd.concat(all_X_train)`)
+- **exp_015:** Basato su exp_014 centralizzato → invalido
+- **exp_039 originale:** Training centralizzato (riga 54: `pd.concat(all_data)`) 
 
-**Impact:** ~10 submissions wasted on invalid approaches. However, these experiments provided valuable insights into ensemble techniques, which we later reimplemented correctly in a federated setting (exp_031).
+**Esperimenti affetti totali:**
+- exp_014, 015: Feature engineering centralizzato
+- exp_017-021: Weight optimization & stacking centralizzati
+- exp_024-030: Ensemble avanzati e meta-learner centralizzati
+- exp_039 (originale): Data augmentation ma training centralizzato
+- **Impact:** ~13 submission invalide, ma exp_039 corretto in tempo!
 
-**Lesson learned:** Always verify FL compliance during development, not only at the end of the project
+**Lesson learned:** Code review continuo essenziale. Anche esperimenti "ovviamente FL" possono nascondere aggregazioni centralizzate. La seconda scoperta a -1 giorno dalla deadline ci ha salvato dall'invalidare il nostro miglior approccio!
 
 ---
 
@@ -170,10 +179,11 @@ During the advanced optimization phase (experiments 017–030), we inadvertently
   - Best clients: 3, 4 (MAE ~6-7)
   - Worst clients: 2, 7 (MAE ~15-18) - diverse data distribution
 - **Kaggle Score:** 11.92674 MAE ✅
-- **Result:** 🥇 **NEW BEST** - Significant improvement (-0.08 MAE from exp_015)
-- **Position:** 3rd place confirmed
+- **Result:** 🥇 **BEST VALID SCORE** (post-invalidation exp_014/015/039)
+- **Position:** 3rd place confirmed and maintained
 - **FL Compliance:** ✅ All components fully federated
 - **Insight:** Third algorithm added robustness, LightGBM contributed unique patterns
+- **Note:** Originally -0.08 MAE from exp_015, now recognized as absolute best valid
 
 ---
 
@@ -782,24 +792,121 @@ Attraverso 16 submission e 39 esperimenti (validi e non), abbiamo raggiunto e ma
 ⚠️ **Small Dataset:** Only 999 samples → overfitting → solved with augmentation
 ⚠️ **Preprocessing Bug:** Time series extraction missing → caught and fixed
 
-### Current Position
+### Current Position (8 Gen 2026, 23:00)
 
-- **Rank:** 3rd place (confirmed)
-- **Score:** 11.92674 MAE
-- **Gap to 2nd:** -1.23 MAE (challenging but potentially reachable)
+- **Rank:** 3rd place
+- **Best VALID Score:** 11.92674 MAE (exp_031)
+- **Gap to 2nd:** -1.23 MAE (challenging)
 - **Gap to 1st:** -1.49 MAE (very difficult with FL constraints)
-- **Submissions remaining:** 19/35
+- **Submissions remaining:** 18/35 (2 left after exp_039 re-test)
+- **Invalidated scores:** exp_014 (12.20), exp_015 (12.01), exp_039 original (11.89)
 
-### Next Critical Milestone
+### Final Strategy (8 Gen 2026, Deadline: 9 Gen)
 
-**exp_039 submission (tonight):**
-- If successful (< 11.70): Major breakthrough, new best strategy
-- If marginal (11.70-11.90): Small gain, consider further tuning  
-- If failed (> 11.90): Maintain exp_031, accept strong 3rd place
+**Submission #18: exp_039 FL-CORRECTED (tonight/tomorrow)**
+- Vero FL: 9 RF + 9 LGBM separati, bagging finale
+- Val MAE: 7.55/6.61 (eccellente, migliore di tutte le versioni)
+- Expected: 11.40-12.00 MAE
+- If successful (< 11.90): Nuovo best score! 🎉
+- If failed (> 12.00): Mantenere exp_031 (11.92674)
 
-Con 19 submission rimanenti e 3 giorni alla deadline, exp_039 rappresenta il tentativo più promettente per avvicinarsi al 2° posto. La strategia di data augmentation, validata dai risultati locali drammatici (-28%/-21% Val MAE), offre una nuova direzione dopo il plateau degli esperimenti di ottimizzazione classica.
+**Submission #19 (conditional, deadline day):**
+- **IF exp_039 < 11.90:** Generate exp_041 (ensemble exp_039_FL + exp_031)
+- **IF exp_039 > 12.00:** Skip, mantenere exp_031 come finale
 
-**Final note:** Indipendentemente dal risultato di exp_039, il percorso ha dimostrato un approccio solido e metodico al Federated Learning, con apprendimenti preziosi su ensemble methods, data augmentation, e i limiti/opportunità dei constraint FL in competizioni reali.
+Con 2 submission rimanenti e validation results eccellenti (7.55/6.61 MAE), vale la pena testare exp_039 FL-compliant. La scoperta last-minute del bug centralizzato ci ha dato una seconda chance di validare correttamente l'approccio di data augmentation.
+
+**Risk Assessment:**
+- Best case: exp_039 11.40-11.70, exp_041 11.30-11.60 → 2° posto possibile! 🥈
+- Medium case: exp_039 11.90-12.00 → 3° posto mantenuto 🥉
+- Worst case: exp_039 > 12.00 → 3° posto con exp_031 (11.92674) 🥉
+
+---
+
+## 10. Final Conclusion (8 Gennaio 2026, 23:00)
+
+### Journey Summary
+
+Attraverso **40+ esperimenti** e **17 submission**, abbiamo raggiunto il **3° posto** in una competizione di Federated Learning estremamente challenging. Il percorso è stato caratterizzato da successi tecnici, errori critici scoperti e corretti, e un approccio metodico alla risoluzione dei problemi.
+
+### Scoperte Critiche
+
+**Prima revisione FL (4 Gen):** exp_017-030 centralizzati
+- 10 submission invalidate
+- Best invalid score: 11.18725 MAE
+- Lesson: Verificare FL compliance durante sviluppo
+
+**Seconda revisione FL (8 Gen, -1 giorno deadline!):** exp_014, 015, 039 centralizzati
+- 3 submission aggiuntive invalidate
+- Incluso il nostro "best score" 11.89067 MAE (exp_039)
+- **Azione immediata:** Re-trained exp_039 con vero FL in 3 ore
+- **Risultato:** Validation ancora MIGLIORE (7.55/6.61 vs 8.79/8.58)!
+
+### Best Valid Approaches
+
+| Rank | Exp | Score (MAE) | Approach | Status |
+|------|-----|-------------|----------|--------|
+| 1 | **031** | **11.92674** | Three-way FL (RF+XGB+LGBM) | ✅ **CURRENT BEST** |
+| 2 | 012 | 12.16010 | Two-way (RF+XGB) | ✅ Valid |
+| 3 | 008 | 12.45205 | RF improved | ✅ Valid |
+| 4 | 001 | 12.74541 | XGBoost baseline | ✅ Valid |
+| - | 039 | **TBD** | FL-corrected augmented | ⏳ **Ready for test** |
+| ❌ | ~~015~~ | ~~12.01004~~ | ~~Two-way advanced~~ | ❌ Centralized |
+| ❌ | ~~014~~ | ~~12.19651~~ | ~~RF advanced~~ | ❌ Centralized |
+| ❌ | ~~039 old~~ | ~~11.89067~~ | ~~Augmented~~ | ❌ Centralized |
+
+### Technical Achievements
+
+✅ **FL-Compliant Pipeline:** Client app, server app, bagging strategies  
+✅ **Ensemble Methods:** Two-way, three-way, tested up to five-way  
+✅ **Data Augmentation:** 6x multiplication per-client (innovative in FL context)  
+✅ **Algorithm Diversity:** XGBoost, Random Forest, LightGBM, CatBoost tested  
+✅ **Rigorous Validation:** Two complete FL code reviews, all issues caught  
+
+### Key Learnings
+
+1. **FL Compliance is Hard:** Even "obvious" FL code can hide centralization
+2. **Code Review Essential:** Multiple passes needed, especially before deadline
+3. **Validation Gap ≠ Test Gap:** exp_040 showed spectacular validation (-2.00 MAE) but terrible Kaggle (+0.72 MAE)
+4. **More Models ≠ Better:** Three-way optimal, four/five-way degrades performance
+5. **Data Augmentation Works:** But requires true FL to be valid
+6. **Small Datasets + FL = Challenge:** Only 110 samples/client creates high overfitting risk
+
+### Final Position
+
+- **Current Rank:** 3rd place 🥉
+- **Best Valid Score:** 11.92674 MAE (exp_031)
+- **Gap to 2nd:** -1.23 MAE
+- **Submissions Used:** 17/35 (18 remaining, 2 planned)
+- **Deadline:** 9 Gennaio 2026
+
+### Final Submissions Strategy
+
+**Tonight/Tomorrow (8-9 Gen):**
+1. Submit exp_039 FL-corrected (Val MAE 7.55/6.61)
+2. If successful: Submit exp_041 ensemble (exp_039_FL + exp_031)
+3. If failed: Maintain exp_031 as final submission
+
+### Reflection
+
+This project demonstrated that **Federated Learning compliance is not just a checkbox** - it requires constant vigilance, multiple code reviews, and willingness to invalidate and redo work when violations are discovered. The fact that we caught the exp_039 centralization bug 24 hours before deadline and immediately corrected it shows the importance of:
+
+1. **Systematic code review** at critical moments
+2. **Understanding FL principles** deeply, not just following templates
+3. **Willingness to start over** when needed
+4. **Time management** that allows for last-minute corrections
+
+The corrected exp_039 (Val MAE 7.55/6.61) represents our strongest technical approach: data augmentation (innovative), true FL compliance (rigorous), and ensemble diversity (9 RF + 9 LGBM). Whether it beats exp_031 on Kaggle remains to be seen, but the methodology is sound and the learning journey invaluable.
+
+**3rd place in a FL competition with only 999 training samples split across 9 clients is a strong achievement.** The technical lessons learned about FL compliance, overfitting mitigation, and ensemble methods will be valuable for future federated learning projects.
+
+---
+
+**Last Updated:** 8 Gennaio 2026, 23:00  
+**Next Submission:** 8-9 Gennaio 2026 (exp_039 FL-corrected)  
+**Submissions Remaining:** 18/35 (2 planned for finale)  
+**Current Best VALID:** exp_031 (11.92674 MAE, 3rd place) ✅  
+**Status:** Ready for final push - exp_039 FL corrected, validation excellent (7.55/6.61 MAE)
 
 ---
 
