@@ -84,7 +84,7 @@ def scale_magnitude(row, scale_factor=None):
 
 def mixup_rows(row1, row2, alpha=0.3):
     """
-    Crea una combinazione convessa di due righe (mixup augmentation).
+    Crea una combinazione di due righe (mixup augmentation).
     
     Args:
         row1: Prima riga
@@ -203,7 +203,6 @@ def augment_dataframe(df, augmentation_factor=3):
         all_rows.append(row)
     
     n_original = len(df)
-    print(f"      Applicando augmentation (factor={augmentation_factor})...")
     
     # Per ogni riga originale, crea varianti augmented
     for idx, row in df.iterrows():
@@ -231,9 +230,7 @@ def augment_dataframe(df, augmentation_factor=3):
     
     augmented_df = pd.DataFrame(all_rows)
     augmented_df = augmented_df.reset_index(drop=True)
-    
-    print(f"      → Da {n_original} a {len(augmented_df)} righe (x{len(augmented_df)/n_original:.1f})")
-    
+        
     return augmented_df
 
 
@@ -275,17 +272,15 @@ def merge_users_with_augmentation(csv_files, augmentation_factor=3):
                     pass
             
             if df is None or len(df) == 0:
-                print(f"   ⚠️  Impossibile caricare: {os.path.basename(csv_file)}")
+                print(f"Impossibile caricare: {os.path.basename(csv_file)}")
                 continue
-            
-            print(f"   ✓ Caricato: {os.path.basename(csv_file)} ({len(df)} righe)")
-            
+                        
             # Applica augmentation a questo utente
             df_augmented = augment_dataframe(df, augmentation_factor)
             all_user_dfs.append(df_augmented)
                 
         except Exception as e:
-            print(f"   ✗ Errore nel caricamento di {csv_file}: {e}")
+            print(f"Errore nel caricamento di {csv_file}: {e}")
             continue
     
     if not all_user_dfs:
@@ -301,14 +296,15 @@ def preprocess_timeseries_columns(df):
     """
     Preprocessa le colonne time-series convertendole da stringhe a statistiche numeriche.
     """
+
+    # Colonne time-series da processare
     timeseries_cols = ['hr_time_series', 'resp_time_series', 'stress_time_series']
     
     for col in timeseries_cols:
         if col not in df.columns:
             continue
-            
-        print(f"   Preprocessing colonna: {col}")
-        
+
+        # Converti stringa in lista        
         def safe_parse(x):
             if pd.isna(x) or x is None:
                 return []
@@ -326,6 +322,7 @@ def preprocess_timeseries_columns(df):
         
         series_data = df[col].apply(safe_parse)
         
+        # Calcola statistiche
         base_name = col.replace('_time_series', '')
         
         def safe_mean(x):
@@ -369,6 +366,7 @@ def preprocess_timeseries_columns(df):
         df[f'{base_name}_max'] = series_data.apply(safe_max)
         df[f'{base_name}_std'] = series_data.apply(safe_std)
         
+        # Rimuovi la colonna originale
         df = df.drop(columns=[col])
     
     return df
@@ -377,68 +375,48 @@ def preprocess_timeseries_columns(df):
 def merge_and_preprocess_group(group_path, group_name, augmentation_factor=3):
     """
     Unisce tutti i CSV di un gruppo con data augmentation e li preprocessa.
-    """
-    print(f"\n📂 Processando {group_name}...")
-    
+    """    
     csv_files = glob.glob(os.path.join(group_path, "*.csv"))
     
     if not csv_files:
-        print(f"   ⚠️  Nessun file CSV trovato in {group_path}")
+        print(f"Nessun file CSV trovato in {group_path}")
         return None
-    
-    print(f"   Trovati {len(csv_files)} file CSV")
-    
+        
     # Unisci i CSV con data augmentation
     merged_df = merge_users_with_augmentation(csv_files, augmentation_factor)
     
     if merged_df is None or len(merged_df) == 0:
-        print(f"   ⚠️  Nessun DataFrame valido per {group_name}")
+        print(f"Nessun DataFrame valido per {group_name}")
         return None
-    
-    print(f"   ✓ DataFrame unito: {len(merged_df)} righe totali")
-    
+        
     # Preprocessa le colonne time-series
-    print(f"   🔄 Preprocessing time-series...")
+    print(f"Preprocessing time-series...")
     processed_df = preprocess_timeseries_columns(merged_df)
     
-    print(f"   ✓ Preprocessing completato: {processed_df.shape[1]} colonne finali")
+    print(f"Preprocessing completato: {processed_df.shape[1]} colonne finali")
     
     return processed_df
 
 
 def setup_dataset():
-    """
-    Funzione principale per preparare il dataset con data augmentation avanzata.
-    """
-    print("🚀 Inizio preparazione dataset con Data Augmentation Avanzata\n")
-    print("=" * 70)
-    print("Tecniche applicate:")
-    print("  1. Gaussian noise injection")
-    print("  2. Magnitude scaling")
-    print("  3. Linear interpolation")
-    print("  4. Mixup augmentation")
-    print("=" * 70)
-    
-    # Percorsi
+    # Percorsi utili
     script_dir = Path(__file__).parent
     data_dir = script_dir / "clients_data"
     output_dir = script_dir / "ready_for_flwr_augmented"
     
     if not data_dir.exists():
-        print(f"❌ Errore: La cartella {data_dir} non esiste!")
+        print(f"Errore: La cartella {data_dir} non esiste!")
         return
     
     output_dir.mkdir(exist_ok=True)
-    print(f"\n📁 Cartella di output: {output_dir}\n")
+    print(f"\n Cartella di output: {output_dir}\n")
     
     group_folders = sorted([d for d in data_dir.iterdir() if d.is_dir()])
     
     if not group_folders:
-        print(f"❌ Errore: Nessuna sottocartella trovata in {data_dir}")
+        print(f"Errore: Nessuna sottocartella trovata in {data_dir}")
         return
-    
-    print(f"📊 Trovati {len(group_folders)} gruppi\n")
-    
+        
     # Augmentation factor: quanto moltiplicare i dati (3-4x è un buon compromesso)
     augmentation_factor = 3
     
@@ -452,14 +430,8 @@ def setup_dataset():
             processed_df.to_csv(output_file, index=False)
             print(f"   💾 Salvato: {output_file.name} ({len(processed_df)} righe, {processed_df.shape[1]} colonne)")
     
-    print("\n" + "=" * 70)
-    print("✅ Preparazione dataset completata!")
-    print(f"📁 I file pronti si trovano in: {output_dir}")
-    
     ready_files = list(output_dir.glob("client_*.csv"))
-    print(f"\n📋 Riepilogo: {len(ready_files)} file client pronti")
-    print(f"   Augmentation factor: ~{augmentation_factor}x")
-    print(f"   Tecniche: Noise + Scaling + Interpolation + Mixup")
+    print(f"Riepilogo: {len(ready_files)} file client pronti")
 
 
 if __name__ == "__main__":

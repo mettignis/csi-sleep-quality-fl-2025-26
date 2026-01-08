@@ -1,4 +1,6 @@
-"""Client Flower per Federated Learning con XGBoost."""
+"""
+Client Flower per Federated Learning con XGBoost
+"""
 import warnings
 import numpy as np
 import xgboost as xgb
@@ -15,7 +17,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 app = ClientApp()
 
 def _local_boost(bst_input, num_local_round, train_dmatrix, train_method):
-    """Esegue il boosting locale."""
+    # Boosting locale
     for i in range(num_local_round):
         bst_input.update(train_dmatrix, bst_input.num_boosted_rounds())
     
@@ -32,7 +34,6 @@ def _local_boost(bst_input, num_local_round, train_dmatrix, train_method):
 
 @app.train()
 def train(msg: Message, context: Context) -> Message:
-    """Training del modello locale."""
     # Configurazione
     partition_id = context.node_config["partition-id"]
     num_local_round = context.run_config["local-epochs"]
@@ -79,7 +80,6 @@ def train(msg: Message, context: Context) -> Message:
 
 @app.evaluate()
 def evaluate(msg: Message, context: Context) -> Message:
-    """Valutazione del modello globale."""
     partition_id = context.node_config["partition-id"]
     test_fraction = context.run_config["test-fraction"]
     
@@ -97,7 +97,7 @@ def evaluate(msg: Message, context: Context) -> Message:
     global_model = bytearray(msg.content["arrays"]["0"].numpy().tobytes())
     bst.load_model(global_model)
     
-    # Predizione e valutazione
+    # Prediction and Validation
     y_pred = bst.predict(valid_dmatrix)
     y_test = valid_dmatrix.get_label()
     mse = mean_squared_error(y_test, y_pred)

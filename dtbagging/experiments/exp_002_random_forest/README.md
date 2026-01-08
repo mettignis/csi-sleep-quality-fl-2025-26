@@ -1,14 +1,14 @@
 # Esperimento 002 - Random Forest
 
 **Data:** 22 Dicembre 2025
-**Score Kaggle:** 12.95967 ⚠️ (peggiore di XGBoost)
+**Score Kaggle:** 12.95967 (peggiore di XGBoost)
 **Posizione:** ~10°
 
 ## Confronto con XGBoost Baseline
 | Modello | Score | Differenza |
 |---------|-------|-----------|
-| XGBoost Baseline | 12.74541 | **MIGLIORE** ✅ |
-| Random Forest    | 12.95967 | +0.21426 ❌ |
+| XGBoost Baseline | 12.74541 | **MIGLIORE** |
+| Random Forest    | 12.95967 | +0.21426 |
 
 ## Configurazione
 

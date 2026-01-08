@@ -1,13 +1,14 @@
-"""Script per eseguire la simulazione di Federated Learning."""
+"""
+Script per eseguire la simulazione di Federated Learning
+"""
 import subprocess
 import sys
 import os
 
 def run_simulation():
-    """Esegue la simulazione Flower."""
-    print("🚀 Avvio simulazione Federated Learning...")
+    print("Avvio simulazione Flower Federated Learning...")
     
-    # Ottieni la directory del progetto (quella con pyproject.toml)
+    # Directory del progetto
     project_dir = os.path.join(os.path.dirname(__file__), "..")
     project_dir = os.path.abspath(project_dir)
     
@@ -16,7 +17,7 @@ def run_simulation():
     venv_bin = os.path.join(project_dir, venv_name, "bin")
     flwr_path = os.path.join(venv_bin, "flwr")
     
-    # Aggiungi la directory bin del venv al PATH
+    # Directory bin del virtual environment
     env = os.environ.copy()
     env["PATH"] = f"{venv_bin}:{env.get('PATH', '')}"
     
@@ -26,10 +27,10 @@ def run_simulation():
             "--run-config", 'train-method="bagging" num-server-rounds=10'
         ], check=True, env=env, cwd=project_dir)
         
-        print("\n✅ Simulazione completata!")
+        print("Simulazione completata")
         
     except subprocess.CalledProcessError as e:
-        print(f"\n❌ Errore durante la simulazione: {e}")
+        print(f"Errore durante la simulazione: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

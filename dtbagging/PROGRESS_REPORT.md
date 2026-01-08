@@ -33,7 +33,7 @@
 ## Executive Summary
 
 **Current Status:**
-- **Best Valid Score:** 11.89067 MAE (exp_039, 3rd place) 🥇
+- **Best Valid Score:** 11.89067 MAE (exp_039)
 - **Submissions Used:** 17/35 (18 remaining)
 - **Target:** 10.69856 MAE (2nd place, gap: -1.20 MAE)
 - **Current Approach:** Data augmentation (exp_039) - hyperparameter tuning fallito (exp_040)
@@ -44,7 +44,7 @@
 ## 1. Challenge Requirements & Federated Learning Setup
 
 ### Dataset Structure
-- **Training:** 999 samples distributed across 9 groups (clients)
+- **Training:** samples distributed across 9 groups (clients)
 - **Groups:** `clients_data/group0-8/` (5 users each)
 - **Clients:** 9 federated clients (one per group)
 - **Test:** 189 samples (x_test.csv)
@@ -139,16 +139,17 @@
 
 **exp_017-030: Invalidated Experiments** ❌
 
-Durante la fase di ottimizzazione avanzata (esperimenti 017-030), abbiamo inavvertitamente utilizzato una funzione di caricamento dati che concatenava i dataset di tutti i 9 clients prima del training, violando i requisiti di Federated Learning della challenge. Questo errore è passato inosservato perché il codice caricava correttamente i file per gruppo ma li aggregava in un unico DataFrame centralizzato. Riutilizzando poi la stessa funzione non ci siamo resi conto dell'errore. 
+During the advanced optimization phase (experiments 017–030), we inadvertently used a data-loading function that concatenated the datasets of all 9 clients before training, violating the Federated Learning requirements of the challenge. This mistake went unnoticed because the code correctly loaded the files by group but then aggregated them into a single centralized DataFrame. By reusing the same function afterward, we failed to realize the error.
 
-**Esperimenti affetti:**
-- exp_017-021: Weight optimization & stacking centralizzati
-- exp_024-030: Ensemble avanzati e meta-learner centralizzati
-- **Best score (invalid):** 11.18725 MAE (exp_024) - 3° posto temporaneo
+**Affected experiments:**
 
-**Impatto:** ~10 submission sprecate su approcci non validi. Tuttavia, questi esperimenti hanno fornito insights preziosi sulle tecniche di ensemble che abbiamo poi reimplementato correttamente in modalità federated (exp_031).
+- exp_017–021: Centralized weight optimization & stacking
+- exp_024–030: Advanced ensembles and centralized meta-learners
+- **Best score (invalid):** 11.18725 MAE (exp_024) – temporary 3rd place
 
-**Lesson learned:** Sempre verificare la compliance FL durante lo sviluppo, non solo a fine progetto.
+**Impact:** ~10 submissions wasted on invalid approaches. However, these experiments provided valuable insights into ensemble techniques, which we later reimplemented correctly in a federated setting (exp_031).
+
+**Lesson learned:** Always verify FL compliance during development, not only at the end of the project
 
 ---
 
