@@ -1,4 +1,6 @@
-"""Advanced Feature Engineering dalle Time-Series - Per exp_013"""
+"""
+Advanced Feature Engineering dalle Time-Series - Per exp_013
+"""
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -8,41 +10,35 @@ from scipy.signal import find_peaks
 def extract_advanced_timeseries_features(series_data):
     """
     Estrae feature avanzate da time-series.
-    
-    Args:
-        series_data: array di valori
-        
-    Returns:
-        dict di feature
     """
     if len(series_data) == 0:
         return {}
     
     features = {}
     
-    # 1. Statistiche base (già abbiamo, ma aggiungiamo altre)
+    # Statistiche base
     features['mean'] = np.mean(series_data)
     features['std'] = np.std(series_data)
     features['min'] = np.min(series_data)
     features['max'] = np.max(series_data)
     features['median'] = np.median(series_data)
     
-    # 2. Percentili
+    # Percentili
     features['percentile_25'] = np.percentile(series_data, 25)
     features['percentile_75'] = np.percentile(series_data, 75)
     features['percentile_90'] = np.percentile(series_data, 90)
     features['iqr'] = features['percentile_75'] - features['percentile_25']
     
-    # 3. Shape statistics
+    # Shape statistics
     features['skewness'] = stats.skew(series_data)
     features['kurtosis'] = stats.kurtosis(series_data)
     
-    # 4. Variabilità
+    # Variabilità
     features['range'] = features['max'] - features['min']
     features['cv'] = features['std'] / (features['mean'] + 1e-8)  # coefficient of variation
     features['mad'] = np.median(np.abs(series_data - features['median']))  # median absolute deviation
     
-    # 5. Trend features
+    # Trend features
     if len(series_data) > 2:
         # Linear trend
         x = np.arange(len(series_data))
@@ -53,7 +49,7 @@ def extract_advanced_timeseries_features(series_data):
         features['trend_slope'] = 0
         features['trend_r2'] = 0
     
-    # 6. Change rate
+    # Change rate
     if len(series_data) > 1:
         diffs = np.diff(series_data)
         features['mean_diff'] = np.mean(diffs)
@@ -75,7 +71,7 @@ def extract_advanced_timeseries_features(series_data):
         features['mean_acceleration'] = 0
         features['std_acceleration'] = 0
     
-    # 7. Peak detection
+    # Peak detection
     if len(series_data) > 3:
         peaks, _ = find_peaks(series_data)
         valleys, _ = find_peaks(-series_data)
@@ -100,7 +96,7 @@ def extract_advanced_timeseries_features(series_data):
         features['mean_peak_value'] = features['max']
         features['mean_valley_value'] = features['min']
     
-    # 8. Entropy (misura di irregolarità)
+    # Entropy (misura di irregolarità)
     if len(series_data) > 1:
         # Approximate entropy
         hist, _ = np.histogram(series_data, bins=10)
@@ -112,7 +108,7 @@ def extract_advanced_timeseries_features(series_data):
     else:
         features['entropy'] = 0
     
-    # 9. Autocorrelation (lag-1)
+    # Autocorrelation (lag-1)
     if len(series_data) > 2:
         # Pearson correlation with lag-1
         features['autocorr_lag1'] = np.corrcoef(series_data[:-1], series_data[1:])[0, 1]
@@ -121,10 +117,10 @@ def extract_advanced_timeseries_features(series_data):
     else:
         features['autocorr_lag1'] = 0
     
-    # 10. Energy
+    # Energy
     features['energy'] = np.sum(series_data ** 2) / len(series_data)
     
-    # 11. Zero-crossing rate
+    # Zero-crossing rate
     if len(series_data) > 1:
         mean_centered = series_data - features['mean']
         zero_crossings = np.sum(np.diff(np.sign(mean_centered)) != 0)
@@ -139,15 +135,8 @@ def add_advanced_features(df):
     """
     Aggiunge feature avanzate al dataframe.
     Applica extract_advanced_timeseries_features a hr, resp, stress time-series.
-    
-    NOTA: Questa funzione assume che le time-series siano già state processate
-    e che esistano colonne mean/min/max/std. Qui NON processiamo le time-series raw,
-    ma solo aggiungiamo nuove feature basate su quelle esistenti.
-    """
-    print("   🔬 Advanced feature engineering in corso...")
-    
-    # Per ora aggiungiamo solo feature aggiuntive basate su quelle esistenti
-    # (percentili, ratios, etc.) poiché non abbiamo accesso alle time-series raw qui
+    """    
+    # Feature aggiuntive basate su quelle esistenti
     
     # Advanced ratios
     for prefix in ['hr', 'resp', 'stress']:
@@ -195,7 +184,5 @@ def add_advanced_features(df):
     
     if 'stress_mean' in df.columns:
         df['stress_mean_squared'] = df['stress_mean'] ** 2
-    
-    print(f"   ✅ Advanced features aggiunte: {len(df.columns)} feature totali")
     
     return df

@@ -15,7 +15,7 @@ app = ServerApp()
 
 @app.main()
 def main(grid: Grid, context: Context) -> None:
-    """Main del server."""
+
     # Configurazione
     num_rounds = context.run_config["num-server-rounds"]
     fraction_train = context.run_config["fraction-train"]
@@ -29,7 +29,7 @@ def main(grid: Grid, context: Context) -> None:
     global_model = b""
     arrays = ArrayRecord([np.frombuffer(global_model, dtype=np.uint8)])
     
-    # Strategia
+    # Scegli la strategia
     if train_method == "bagging":
         strategy = FedXgbBagging(
             fraction_train=fraction_train,
@@ -38,7 +38,7 @@ def main(grid: Grid, context: Context) -> None:
     else:
         strategy = FedXgbCyclic()
     
-    # Esegui training federato
+    # Esegui Federated Learning
     result = strategy.start(
         grid=grid,
         initial_arrays=arrays,

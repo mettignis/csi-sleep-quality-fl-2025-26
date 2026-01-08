@@ -26,18 +26,17 @@ def preprocess_timeseries_columns(df):
     Returns:
         DataFrame con colonne time-series elaborate (media, min, max, std)
     """
+
+    # Colonne time-series da processare
     timeseries_cols = ['hr_time_series', 'resp_time_series', 'stress_time_series']
     
     for col in timeseries_cols:
         if col not in df.columns:
             continue
-            
-        print(f"   Preprocessing colonna: {col}")
         
         # Converti stringa in lista
         try:
             def safe_parse(x):
-                """Parse sicuro che gestisce vari casi."""
                 if pd.isna(x) or x is None:
                     return []
                 if isinstance(x, (list, np.ndarray)):
@@ -55,15 +54,14 @@ def preprocess_timeseries_columns(df):
             series_data = df[col].apply(safe_parse)
             
         except Exception as e:
-            print(f"   ⚠️  Errore nel parsing di {col}: {e}")
-            # Prova un altro approccio: rimuovi spazi e converti
+            print(f"Errore nel parsing di {col}: {e}")
             try:
                 series_data = df[col].apply(lambda x: ast.literal_eval(str(x).strip()) if pd.notna(x) else [])
             except:
-                print(f"   ✗ Impossibile processare {col}, colonna saltata")
+                print(f"Impossibile processare {col}, colonna saltata")
                 continue
         
-        # Calcola statistiche (filtra solo liste valide non vuote)
+        # Calcola statistiche
         base_name = col.replace('_time_series', '')
         
         def safe_mean(x):
@@ -120,18 +118,16 @@ def merge_and_preprocess_group(group_path, group_name):
     Returns:
         DataFrame unito e preprocessato
     """
-    print(f"\n📂 Processando {group_name}...")
+    print(f"\nProcessando {group_name}...")
     
-    # Trova tutti i CSV nella cartella
+    # Trova tutti i CSV in un group 
     csv_files = glob.glob(os.path.join(group_path, "*.csv"))
     
     if not csv_files:
-        print(f"   ⚠️  Nessun file CSV trovato in {group_path}")
+        print(f"Nessun file CSV trovato in {group_path}")
         return None
     
-    print(f"   Trovati {len(csv_files)} file CSV")
-    
-    # Leggi e unisci tutti i CSV
+    # Unione di tutti i CSV
     dataframes = []
     for csv_file in csv_files:
         try:
@@ -162,59 +158,51 @@ def merge_and_preprocess_group(group_path, group_name):
             
             if df is not None and len(df) > 0:
                 dataframes.append(df)
-                print(f"   ✓ Caricato: {os.path.basename(csv_file)} ({len(df)} righe, {df.shape[1]} colonne)")
             else:
-                print(f"   ✗ Impossibile caricare: {os.path.basename(csv_file)}")
+                print(f"Impossibile caricare: {os.path.basename(csv_file)}")
                 
         except Exception as e:
-            print(f"   ✗ Errore nel caricamento di {csv_file}: {e}")
+            print(f"Errore nel caricamento di {csv_file}: {e}")
     
     if not dataframes:
-        print(f"   ⚠️  Nessun DataFrame valido per {group_name}")
+        print(f"Nessun DataFrame valido per {group_name}")
         return None
     
-    # Unisci tutti i DataFrame
+    # Concatena i DataFrame
     merged_df = pd.concat(dataframes, ignore_index=True)
-    print(f"   ✓ DataFrame unito: {len(merged_df)} righe totali")
     
     # Preprocessa le colonne time-series
-    print(f"   🔄 Preprocessing time-series...")
+    print(f"Preprocessing time-series")
     processed_df = preprocess_timeseries_columns(merged_df)
     
-    print(f"   ✓ Preprocessing completato: {processed_df.shape[1]} colonne finali")
+    print(f"Preprocessing completato: {processed_df.shape[1]} colonne finali")
     
     return processed_df
 
 
-def setup_dataset():
-    """
-    Funzione principale per preparare il dataset.
-    """
-    print("🚀 Inizio preparazione dataset per Federated Learning\n")
-    print("=" * 60)
-    
-    # Percorsi
+def setup_dataset():    
+    # Percorsi utili
     script_dir = Path(__file__).parent
     data_dir = script_dir / "clients_data"
     output_dir = script_dir / "ready_for_flwr"
     
     # Verifica che la cartella dei dati esista
     if not data_dir.exists():
-        print(f"❌ Errore: La cartella {data_dir} non esiste!")
+        print(f"Errore: La cartella {data_dir} non esiste!")
         return
     
     # Crea la cartella di output
     output_dir.mkdir(exist_ok=True)
-    print(f"📁 Cartella di output: {output_dir}\n")
+    print(f"Cartella di output: {output_dir}\n")
     
-    # Trova tutte le sottocartelle (gruppi)
+    # Trova tutte le sottocartelle (group_i)
     group_folders = sorted([d for d in data_dir.iterdir() if d.is_dir()])
     
     if not group_folders:
-        print(f"❌ Errore: Nessuna sottocartella trovata in {data_dir}")
+        print(f"Errore: Nessuna sottocartella trovata in {data_dir}")
         return
     
-    print(f"📊 Trovati {len(group_folders)} gruppi\n")
+    print(f"Trovati {len(group_folders)} gruppi\n")
     
     # Processa ogni gruppo
     for idx, group_folder in enumerate(group_folders):
@@ -227,16 +215,14 @@ def setup_dataset():
             # Salva il risultato
             output_file = output_dir / f"client_{idx}.csv"
             processed_df.to_csv(output_file, index=False)
-            print(f"   💾 Salvato: {output_file.name} ({len(processed_df)} righe, {processed_df.shape[1]} colonne)")
+            print(f"Salvato: {output_file.name} ({len(processed_df)} righe, {processed_df.shape[1]} colonne)")
     
-    print("\n" + "=" * 60)
-    print("✅ Preparazione dataset completata!")
-    print(f"📁 I file pronti si trovano in: {output_dir}")
+    print("Preparazione dataset completata!")
+    print(f"I file pronti si trovano in: {output_dir}")
     
     # Mostra un riepilogo
     ready_files = list(output_dir.glob("client_*.csv"))
-    print(f"\n📋 Riepilogo: {len(ready_files)} file client pronti per Flower")
-
+    print(f"Riepilogo: {len(ready_files)} file client pronti")
 
 if __name__ == "__main__":
     setup_dataset()

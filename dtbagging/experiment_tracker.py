@@ -1,25 +1,17 @@
-"""Script per gestire esperimenti multipli e tracciare risultati."""
+"""
+Script per gestire esperimenti multipli e tracciare risultati
+"""
 import json
 from pathlib import Path
 from datetime import datetime
 import shutil
 
-class ExperimentTracker:
-    """Gestisce gli esperimenti e i loro risultati."""
-    
+class ExperimentTracker:  
     def __init__(self, base_dir="experiments"):
         self.base_dir = Path(__file__).parent / base_dir
         self.base_dir.mkdir(exist_ok=True)
     
     def create_experiment(self, name, description, config):
-        """
-        Crea una nuova directory per un esperimento.
-        
-        Args:
-            name: Nome esperimento (es: "exp_002_random_forest")
-            description: Descrizione breve
-            config: Dict con configurazione (parametri modello, etc)
-        """
         exp_dir = self.base_dir / name
         exp_dir.mkdir(exist_ok=True)
         
@@ -36,18 +28,17 @@ class ExperimentTracker:
         with open(exp_dir / "metadata.json", 'w') as f:
             json.dump(metadata, f, indent=2)
         
-        print(f"✓ Esperimento creato: {name}")
-        print(f"   Directory: {exp_dir}")
+        print(f"Esperimento creato: {name}")
+        print(f"Directory: {exp_dir}")
         
         return exp_dir
     
     def save_results(self, exp_name, kaggle_score, kaggle_position, notes=""):
-        """Salva i risultati di un esperimento."""
         exp_dir = self.base_dir / exp_name
         metadata_path = exp_dir / "metadata.json"
         
         if not metadata_path.exists():
-            print(f"❌ Esperimento non trovato: {exp_name}")
+            print(f"Esperimento non trovato: {exp_name}")
             return
         
         # Aggiorna metadata
@@ -62,15 +53,10 @@ class ExperimentTracker:
         with open(metadata_path, 'w') as f:
             json.dump(metadata, f, indent=2)
         
-        print(f"✓ Risultati salvati per {exp_name}")
-        print(f"   Score: {kaggle_score}, Position: {kaggle_position}")
+        print(f"Risultati salvati per {exp_name}")
+        print(f"Score: {kaggle_score}, Position: {kaggle_position}")
     
-    def list_experiments(self):
-        """Lista tutti gli esperimenti con i loro risultati."""
-        print("\n" + "="*70)
-        print("📊 ESPERIMENTI")
-        print("="*70)
-        
+    def list_experiments(self):      
         experiments = []
         
         for exp_dir in sorted(self.base_dir.iterdir()):
@@ -102,35 +88,29 @@ class ExperimentTracker:
             pos = exp.get('kaggle_position', 'N/A')
             
             print(f"\n{i}. {exp['name']}")
-            print(f"   📝 {exp['description']}")
-            print(f"   🎯 Score: {score}  |  Posizione: {pos}")
+            print(f"{exp['description']}")
+            print(f"Score: {score}  |  Posizione: {pos}")
             
             # Mostra config principali
             config = exp.get('config', {})
             if config:
-                print(f"   ⚙️  Config: ", end="")
+                print(f"Config: ", end="")
                 key_params = []
                 for k, v in config.items():
                     if k in ['algorithm', 'n_estimators', 'max_depth', 'num_rounds']:
                         key_params.append(f"{k}={v}")
                 print(", ".join(key_params))
-        
-        print("\n" + "="*70)
-    
+            
     def copy_files_to_experiment(self, exp_name, model_file, submission_file):
-        """Copia modello e submission nell'esperimento."""
         exp_dir = self.base_dir / exp_name
         
         if model_file.exists():
             shutil.copy(model_file, exp_dir / model_file.name)
-            print(f"   ✓ Copiato {model_file.name}")
         
         if submission_file.exists():
             shutil.copy(submission_file, exp_dir / submission_file.name)
-            print(f"   ✓ Copiato {submission_file.name}")
 
 def main():
-    """Demo usage."""
     tracker = ExperimentTracker()
     
     # Lista esperimenti esistenti

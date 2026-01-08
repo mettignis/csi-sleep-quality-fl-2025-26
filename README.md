@@ -19,7 +19,7 @@ Il sistema utilizza **XGBoost** come modello di machine learning e **Flower** co
 ### 1. Clona la repository
 
 ```bash
-git clone <url-della-tua-repo>
+git clone https://github.com/MettiFire/prova1.git
 cd prova1
 ```
 

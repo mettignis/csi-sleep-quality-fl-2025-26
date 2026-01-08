@@ -1,4 +1,6 @@
-"""Task per caricare e preprocessare i dati."""
+"""
+Task per caricare e preprocessare i dati.
+"""
 import xgboost as xgb
 import pandas as pd
 import numpy as np
@@ -19,7 +21,6 @@ def load_data(partition_id:  int, test_fraction: float, data_folder: str = "dtba
     """
     # Se data_folder è relativo, usa il percorso del file corrente
     if not os.path.isabs(data_folder):
-        # Determina il percorso assoluto relativo a questo file
         base_path = Path(__file__).parent
         data_file = base_path / "ready_for_flwr" / f"client_{partition_id}.csv"
     else:
@@ -27,14 +28,11 @@ def load_data(partition_id:  int, test_fraction: float, data_folder: str = "dtba
     
     if not data_file.exists():
         raise FileNotFoundError(f"File non trovato: {data_file}")
-    
+
     # Carica i dati (già uniti e preprocessati)
     data = pd.read_csv(data_file)
     
-    # Carica i dati (già uniti e preprocessati)
-    data = pd.read_csv(data_file)
-    
-    # Rimuovi colonne completamente vuote PRIMA di dropna
+    # Rimuovi colonne completamente vuote prima di dropna
     data = data.dropna(axis=1, how='all')
     
     # Seleziona le feature numeriche (escludi day, label e le colonne _series se presenti)
@@ -51,7 +49,7 @@ def load_data(partition_id:  int, test_fraction: float, data_folder: str = "dtba
     X = X[valid_idx]
     y = y[valid_idx]
     
-    # Split temporale (non shufflare per preservare l'ordine temporale)
+    # Split temporale
     split_idx = int(len(X) * (1 - test_fraction))
     
     X_train = X.iloc[:split_idx]
@@ -64,13 +62,13 @@ def load_data(partition_id:  int, test_fraction: float, data_folder: str = "dtba
     
     # Crea DMatrix per XGBoost
     train_dmatrix = xgb.DMatrix(X_train, label=y_train)
-    valid_dmatrix = xgb. DMatrix(X_test, label=y_test)
+    valid_dmatrix = xgb.DMatrix(X_test, label=y_test)
     
     return train_dmatrix, valid_dmatrix, num_train, num_test
 
 
 def replace_keys(input_dict, match="-", target="_"):
-    """Sostituisce ricorsivamente caratteri nelle chiavi del dizionario."""
+    # Sostituisce ricorsivamente caratteri nelle chiavi del dizionario
     new_dict = {}
     for key, value in input_dict.items():
         new_key = key.replace(match, target)
