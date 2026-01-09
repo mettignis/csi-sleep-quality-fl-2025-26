@@ -44,7 +44,6 @@ combinations_per_client = (len(param_grid['num_leaves']) *
 
 print(f"   Combinazioni per client: {combinations_per_client}")
 print(f"   Totale (9 clients): {combinations_per_client * 9}")
-print(f"\n⏱️  Tempo stimato: 2-3 ore\n")
 
 # Dizionari per salvare risultati
 client_models = {}
