@@ -5,7 +5,46 @@
 
 ---
 
-## 📖 Abstract
+## � Table of Contents
+
+- [Abstract](#-abstract)
+- [Problem Statement & Constraints](#-problem-statement--constraints)
+  - [Federated Learning Requirements](#federated-learning-requirements)
+  - [Dataset Characteristics](#dataset-characteristics)
+- [Experimental Journey (42 Experiments)](#-experimental-journey-42-experiments)
+  - [Phase 1: Baseline Establishment](#phase-1-baseline-establishment-exp_001-005)
+  - [Phase 2: Feature Engineering Breakthrough](#phase-2-feature-engineering-breakthrough-exp_006)
+  - [Phase 3: Federated Ensemble Optimization](#phase-3-federated-ensemble-optimization-exp_007-030)
+  - [Phase 4: Data Augmentation Revolution](#phase-4-data-augmentation-revolution-exp_039)
+  - [Phase 5: Meta-Ensemble Optimization](#phase-5-meta-ensemble-optimization-exp_041-042-)
+- [Machine Learning Models & Technologies](#-machine-learning-models--technologies)
+  - [Random Forest](#random-forest)
+  - [LightGBM](#lightgbm-light-gradient-boosting-machine)
+  - [XGBoost](#xgboost-extreme-gradient-boosting)
+  - [CatBoost](#catboost)
+  - [LSTM Networks](#lstm-long-short-term-memory-networks)
+  - [Federated Learning Framework](#federated-learning-framework)
+- [Key Results & Learnings](#-key-results--learnings)
+- [Key Insights & Design Decisions](#-key-insights--design-decisions)
+- [Performance Metrics](#-performance-metrics)
+- [Technical Deep Dive](#-technical-deep-dive)
+- [Repository Structure](#-repository-structure)
+- [Quick Start](#-quick-start)
+  - [Installation](#installation)
+  - [Data Setup](#data-setup)
+  - [Preprocessing](#preprocessing)
+  - [Reproduce Winning Solution](#reproduce-winning-solution-exp_041)
+- [Documentation](#-documentation)
+- [Future Work & Open Questions](#-future-work--open-questions)
+- [Author](#-author)
+- [Competition Timeline](#-competition-timeline)
+- [Resources](#-resources)
+- [Troubleshooting](#-troubleshooting)
+- [Acknowledgments](#-acknowledgments)
+
+---
+
+## �📖 Abstract
 
 This work investigates sleep quality prediction from wearable-device biometric data under strict federated learning constraints, where data privacy prohibits centralized data aggregation. The challenge is characterized by an extremely small dataset (999 training samples distributed across nine federated clients), leading to significant overfitting in baseline models. 
 
