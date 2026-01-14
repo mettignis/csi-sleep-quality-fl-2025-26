@@ -50,9 +50,7 @@ This work investigates sleep quality prediction from wearable-device biometric d
 
 To address this, we propose a federated approach combining **per-client data augmentation** and **heterogeneous ensemble learning**. An ensemble of Random Forest and LightGBM models was trained on augmented data using 40 engineered statistical features extracted from time-series biometrics (heart rate, respiration, stress). 
 
-**Key Finding:** In small federated datasets, mitigating overfitting through data augmentation (6x expansion) and architectural diversity is substantially more effective than extensive hyperparameter optimization.
-
-**Final Result:** Through systematic experimentation (42 experiments, 18 submissions), our meta-ensemble strategy combining augmented training (Exp 039) with multi-algorithm diversity (Exp 031) achieved **11.79207 MAE**, securing 3rd place and demonstrating that data quality and ensemble robustness matter more than model complexity in privacy-constrained settings.
+**Final Result:** Through systematic experimentation, our meta-ensemble strategy combining augmented training (Exp 039) with multi-algorithm diversity (Exp 031) achieved **11.79207 MAE**, demonstrating that data quality and ensemble robustness matter more than model complexity in privacy-constrained settings.
 
 ---
 
@@ -104,7 +102,7 @@ for col in ['hr_time_series', 'resp_time_series', 'stress_time_series']:
 ```
 
 **Advanced features tested:**
-- Higher-order statistics: percentiles (25th, 50th, 75th), skewness, kurtosis
+- Higher-order statistics: percentiles (25th, 50th, 75th), skewness (measures data asymmetry), kurtosis (measures data concentration)
 - Entropy measures: Shannon entropy, sample entropy
 - Temporal trends: linear regression slopes, autocorrelation
 
@@ -213,36 +211,23 @@ final_pred = 0.5 × exp_039_pred + 0.5 × exp_031_pred
 - **Equal weighting (0.5/0.5):** Balances both strengths without overfitting to validation
 
 **Results:**
-- **exp_041**: 11.79207 MAE ✅ **BEST SCORE - 3rd Place**
+- **exp_041**: 11.79207 MAE ✅ **BEST SCORE**
 - Improvement: -0.098 from exp_039, -0.134 from exp_031
-- Deadline breakthrough: Submitted Jan 9, 6:00 PM (5.5 hours before deadline)
 
 **Experiment 042 - Weight Exploration:**
 - Tested non-equal weights: 60/40, 55/45, 45/55
 - Local validation suggested marginal gains with 60% augmented bias
 - **Decision:** Maintained 50/50 for robustness (validation set too small to trust)
-- exp_042 not submitted (risk of overfitting.5%)**
 - Formula: `0.45×RF + 0.30×XGB + 0.25×LGBM`
-- Strategia: Diversificazione algoritmica per ridurre correlation
 
-### Phase 5: Data Augmentation Revolution (exp_039)
-**Insight:** Il problema non era il modello ma la scarsità di dati
-
-- **Augmentation 6x**: da 999 a ~6000 samples (per client)
-  - Gaussian noise injection (±3%)
-  - Magnitude scaling (97-103%)
-  - Linear interpolation
-  - Mixup (alpha=0.3)
-- **exp_039**: 11.89067 MAE ✅ **Nuovo record (-12.30 MAE)**
-- Validation MAE ridotta del 28% (RF) e 21% (LGBM)
+---
 
 ### Phase 6: Final Optimization (exp_041) 🏆
 **Winning Strategy:** Ensemble di ensemble con pesi ottimizzati
 
-- **exp_041**: 11.79207 MAE ✅ **BEST SCORE - 3rd Place**
+- **exp_041**: 11.79207 MAE ✅ **BEST SCORE**
 - Formula: `0.5×exp_039 + 0.5×exp_031`
 - Insight: Combinare data augmentation (exp_039) con diversificazione algoritmica (exp_031)
-- Deadline day breakthrough (ore 18:00 del 9 gennaio)
 
 ---
 
@@ -377,42 +362,6 @@ reg_lambda = 1.0        # L2 regularization
 
 ---
 
-## 📊 Key Results & Learnings
-
-### Competition Statistics
-- **Total Experiments:** 42
-- **Submissions Used:** 18/35
-- **Best Score:** 11.79207 MAE (exp_041)
-- **Final Rank:** 3rd place 🥉
-- **Improvement from baseline:** -15.6% (-2.19 MAE)
-
-### Technical Innovations
-1. **Time series feature engineering**: +13 features statistiche
-2. **6x data augmentation**: Risoluzione del problema di scarsity
-3. **Hierarchical ensemble**: Ensemble di ensemble per massimizzare diversità
-4. **FL-compliant augmentation**: Augmentation per-client senza data sharing
-
-### Critical Turning Points
-1. **exp_006**: Feature engineering (+4 nuove features time series)
-2. **exp_031**: Three-way ensemble eterogeneo
-3. **exp_039**: Data augmentation 6x
-4. **exp_041**: Ensemble optimization deadline day
-
-### What Worked
-✅ Data augmentation per ridurre overfitting  
-✅ Ensemble eterogeneo (RF+LGBM+XGB)  
-✅ Feature engineering su time series  
-✅ Weight optimization basato su validation MAE  
-✅ Equal weighting (50/50) per ensemble finali
-
-### What Didn't Work
-❌ CatBoost (troppo lento, performance insufficienti)  
-❌ Complex weight optimization (overfitting, 50/50 spesso migliore)  
-❌ 4-way/5-way ensemble (troppo correlati, no improvement)  
-❌ Meta-learning without augmentation (specialization problem)
-
----
-
 ## 📋 Requirements
 
 - **Python 3.13+**
@@ -447,7 +396,7 @@ prova1/
 │   │   ├── exp_031_three_way_federated/    # Three-way ensemble (11.93 MAE)
 │   │   ├── exp_039_augmented_ensemble/     # Data augmentation (11.89 MAE)
 │   │   ├── exp_041_ensemble/               # 🏆 WINNER (11.79 MAE)
-│   │   └── ... (38 other experiments)
+│   │   └── ... (other experiments)
 │   │
 │   ├── clients_data/            # Raw data (9 groups, 45 users)
 │   ├── ready_for_flwr/          # Preprocessed data (9 clients)
@@ -524,134 +473,6 @@ python optimize_weights.py
 python generate_submission.py
 ```
 
-**Expected Result:** submission_exp041.csv with ~11.79 MAE on Kaggle
-
----
-
-## 📁 Struttura del Progetto
-
-```
-prova1/
-├── pyproject.toml           # Configurazione progetto e dipendenze
-├── README.md                # Questo file
-├── .gitignore               # File da ignorare in Git
-│
-├── � Key Insights & Design Decisions
-
-### Why Data Augmentation Was Critical
-**Problem:** 999 samples / 9 clients = ~110 samples/client → severe overfitting  
-**Solution:** 6x augmentation → ~650 samples/client  
-**Impact:** Validation MAE dropped from 12.20 to 8.79 (RF), from 10.88 to 8.58 (LGBM)
-
-### Why Ensemble of Ensembles Works
-**Insight:** Different ensemble strategies capture different aspects of data
-- **exp_039**: Augmentation-based robustness (low variance)
-- **exp_031**: Algorithm diversity (RF+LGBM+XGB)
-- **exp_041 = 0.5×exp_039 + 0.5×exp_031**: Best of both worlds
-
-### FL Compliance Strategy
-- ✅ **Augmentation per-client**: No data sharing needed
-- ✅ **Ensemble of predictions**: Server aggregates predictions only, no labels
-- ✅ **Local training**: Each client trains on own augmented data
-- ❌ **Avoided**: Centralized training, label sharing, meta-learning with labels
-
-### Weight Optimization Philosophy
-**Finding:** Simple equal weighting (50/50) often outperforms complex optimization
-- exp_041: 50/50 weights → 11.79 MAE ✅
-- exp_042: 60/40 weights → Not better, not submitted
-- **Lesson:** Overfitting to validation set is real, keep it simple
-
----
-
-## 📈 Performance Metrics
-
-### Experiment Evolution
-| Experiment | MAE | Strategy | Improvement |
-|------------|-----|----------|-------------|
-| exp_001 | 13.98 | XGBoost baseline | - |
-| exp_006 | 12.90 | Feature engineering | -7.7% |
-| exp_031 | 11.93 | Three-way ensemble | -14.7% |
-| exp_039 | 11.89 | Data augmentation | -14.9% |
-| **exp_041** | **11.79** | **Ensemble optimization** | **-15.6%** 🏆 |
-
-### Model Contributions (exp_041)
-- **50% exp_039**: RF (65%) + LGBM (35%) on 6x augmented data
-- **50% exp_031**: RF (45%) + XGB (30%) + LGBM (25%) on original data
-- **Final blend**: Optimal balance between robustness and diversity
-
----
-
-## 🔍 Technical Deep Dive
-
-### Feature Engineering Pipeline
-```python
-# Time series → Statistical features
-for col in ['hr_time_series', 'resp_time_series', 'stress_time_series']:
-    df[f'{col}_mean'] = df[col].apply(lambda x: np.mean(x))
-    df[f'{col}_min'] = df[col].apply(lambda x: np.min(x))
-    df[f'{col}_max'] = df[col].apply(lambda x: np.max(x))
-    df[f'{col}_std'] = df[col].apply(lambda x: np.std(x))
-```
-**Impact:** +13 features, +7.7% improvement (exp_006)
-
-### Data Augmentation Strategy
-```python
-# 6x augmentation mix
-augmented_data = [
-    original_data,                          # 1x
-    gaussian_noise(data, std=0.03),        # 2x (two variants)
-    magnitude_scale(data, range=0.97-1.03), # 1x
-    linear_interpolation(data, pairs),      # 1x
-    mixup(data, alpha=0.3)                  # 1x
-]
-```
-**Impact:** -28% validation MAE (RF), -21% (LGBM)
-
-### Ensemble Architecture (exp_041)
-```python
-# Hierarchical ensemble
-exp📚 Documentation
-
-- **[PROGRESS_REPORT.md](dtbagging/PROGRESS_REPORT.md)**: Complete experiment log with detailed analysis of all 42 experiments
-- **Experiment READMEs**: Each experiment folder contains specific implementation details
-- **Code comments**: Inline documentation explaining design decisions
-
----
-
-## 🎯 Future Work & Open Questions
-
-### Potential Improvements
-1. **Advanced augmentation**: GAN-based synthetic data generation
-2. **Neural networks**: Test deep learning with augmented data
-3. **Federated hyperparameter optimization**: Coordinate HP tuning across clients
-4. **Dynamic ensemble weighting**: Adaptive weights based on client data distribution
-
-### Open Research Questions
-1. Can meta-learning work in true FL without label sharing?
-2. How to handle client heterogeneity better (some clients have better data)?
-3. What's the theoretical limit of FL vs centralized for this dataset?
-
----
-
-## 👥 Author
-
-**Anna Mettifogo**  
-Politecnico di Milano - CSI (Cyber Security and Intelligence)
-
----
-
-## 🏆 Competition Timeline
-
-- **Start:** December 2025
-- **Phase 1 (Baseline):** exp_001-005 (Dec 28-29)
-- **Phase 2 (Feature Engineering):** exp_006 (Dec 30) ✨
-- **Phase 3 (Ensemble Experiments):** exp_007-030 (Dec 31 - Jan 5)
-- **Phase 4 (Three-Way Federated):** exp_031 (Jan 6) ✨
-- **Phase 5 (Augmentation):** exp_039 (Jan 6) ✨
-- **Phase 6 (Final Optimization):** exp_041 (Jan 9, 18:00) 🏆
-- **Deadline:** January 9, 2026 (23:59)
-- **Result:** 3rd Place 🥉
-
 ---
 
 ## 🔗 Resources
@@ -665,71 +486,8 @@ Politecnico di Milano - CSI (Cyber Security and Intelligence)
 
 ---
 
-## 📄 License
-
-Academic project for Politecnico di Milano - CSI Course
-
----
-
-## 🙏 Acknowledgments
-
-Grazie al corso CSI del Politecnico di Milano per l'opportunità di partecipare a questa competizione e approfondire il Federated Learning in un contesto pratico e competitivo.
-
-**Competition Stats:**
-- 42 experiments documented
-- 18 Kaggle submissions (out of 35 allowed)
-- 5 breakthrough moments
-- 1 week of intense iteration
-- 🥉 3rd place finish
-
-**Key Takeaway:** In machine learning competitions, data quality and quantity often matter more than model complexity. Our winning strategy prioritized data augmentation (6x samples) and ensemble diversity over hyperparameter tuning.
-
----
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**"ModuleNotFoundError: No module named 'task'"**
-```bash
-python -m dtbagging.script_name  # Use module syntax
-```
-
-**"OSError: dlopen: cannot load libomp.dylib" (macOS)**
-```bash
-brew install libomp
-```
-
-**"Ray ActorDiedError" (Flower simulation)**
-```bash
-# Use sequential training instead
-cd dtbagging/experiments/exp_XXX
-python train_script.py
-```
-
-**"All samples are 0"**
-- Already handled in preprocessing (`dropna(axis=1, how='all')`)
-- Check data format: time series should be comma-separated strings
-3. Commit delle modifiche (`git commit -m 'Aggiunge nuova funzionalità'`)
-4. Push al branch (`git push origin feature/nuova-funzionalita`)
-5. Apri una Pull Request
-
----
-
-## 📝 Licenza
-
-Progetto sviluppato per il corso CSI - Politecnico di Milano.
-
----
-
-## 👥 Autori
+## 👥 Autors
 
 - Anna Mettifogo
-
----
-
-## 🔗 Risorse
-
-- [Flower Documentation](https://flower.ai/docs/)
-- [XGBoost Documentation](https://xgboost.readthedocs.io/)
-- [Federated Learning](https://en.wikipedia.org/wiki/Federated_learning)
+- Gabriel Fumagalli
+- Niccolò Kadera
