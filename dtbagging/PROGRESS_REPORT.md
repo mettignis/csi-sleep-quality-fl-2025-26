@@ -920,7 +920,7 @@ Attraverso **40+ esperimenti** e **17 submission**, abbiamo raggiunto il **3° p
 ✅ **Data Augmentation:** 6x multiplication per-client (innovative in FL context)  
 ✅ **Algorithm Diversity:** XGBoost, Random Forest, LightGBM, CatBoost tested  
 ✅ **Rigorous Validation:** Two complete FL code reviews, all issues caught before deadline  
-✅ **Ensemble Optimization:** Final breakthrough with simple 0.5/0.5 weighting (exp_041)  
+✅ **Ensemble Optimization:** Final breakthrough with simple 0.5/0.5 weighting (exp_041)  x
 
 ### Key Learnings
 
