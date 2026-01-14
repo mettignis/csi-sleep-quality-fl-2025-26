@@ -11,12 +11,12 @@
 - [Problem Statement & Constraints](#-problem-statement--constraints)
   - [Federated Learning Requirements](#federated-learning-requirements)
   - [Dataset Characteristics](#dataset-characteristics)
-- [Experimental Journey (42 Experiments)](#-experimental-journey-42-experiments)
-  - [Phase 1: Baseline Establishment](#phase-1-baseline-establishment-exp_001-005)
-  - [Phase 2: Feature Engineering Breakthrough](#phase-2-feature-engineering-breakthrough-exp_006)
-  - [Phase 3: Federated Ensemble Optimization](#phase-3-federated-ensemble-optimization-exp_007-030)
-  - [Phase 4: Data Augmentation Revolution](#phase-4-data-augmentation-revolution-exp_039)
-  - [Phase 5: Meta-Ensemble Optimization](#phase-5-meta-ensemble-optimization-exp_041-042-)
+- [Experimental Journey](#experimental-journey)
+  - [Phase 1: Baseline Establishment (exp_001-005)](#phase-1-baseline-establishment-exp_001-005)
+  - [Phase 2: Feature Engineering Breakthrough (exp_006)](#phase-2-feature-engineering-breakthrough-exp_006)
+  - [Phase 3: Federated Ensemble Optimization (exp_007-030)](#phase-3-federated-ensemble-optimization-exp_007-030)
+  - [Phase 4: Data Augmentation Revolution (exp_039)](#phase-4-data-augmentation-revolution-exp_039)
+  - [Phase 5: Meta-Ensemble Optimization (exp_041-042)](#phase-5-meta-ensemble-optimization-exp_041-042-)
 - [Machine Learning Models & Technologies](#-machine-learning-models--technologies)
   - [Random Forest](#random-forest)
   - [LightGBM](#lightgbm-light-gradient-boosting-machine)
@@ -24,23 +24,15 @@
   - [CatBoost](#catboost)
   - [LSTM Networks](#lstm-long-short-term-memory-networks)
   - [Federated Learning Framework](#federated-learning-framework)
-- [Key Results & Learnings](#-key-results--learnings)
-- [Key Insights & Design Decisions](#-key-insights--design-decisions)
-- [Performance Metrics](#-performance-metrics)
-- [Technical Deep Dive](#-technical-deep-dive)
+- [Requirements](#-requirements)
 - [Repository Structure](#-repository-structure)
 - [Quick Start](#-quick-start)
   - [Installation](#installation)
   - [Data Setup](#data-setup)
   - [Preprocessing](#preprocessing)
-  - [Reproduce Winning Solution](#reproduce-winning-solution-exp_041)
-- [Documentation](#-documentation)
-- [Future Work & Open Questions](#-future-work--open-questions)
-- [Author](#-author)
-- [Competition Timeline](#-competition-timeline)
+  - [Reproduce Winning Solution (exp_041)](#reproduce-winning-solution-exp_041)
 - [Resources](#-resources)
-- [Troubleshooting](#-troubleshooting)
-- [Acknowledgments](#-acknowledgments)
+- [Authors](#-autors)
 
 ---
 
@@ -69,7 +61,28 @@ The competition enforces a **strict Federated Learning paradigm** with the follo
 
 ### Dataset Characteristics
 
-**DataExperimental Journey (42 Experiments)
+**Data Collection:** Self-collected biometric data from 45 participants wearing Garmin Vivoactive 5 devices over one month, monitoring sleep and daily activity patterns.
+
+**Distribution:**
+- **999 training samples** distributed across 9 federated clients (~110 samples/client)
+- **189 test samples** (shared, unlabeled)
+- **45 users** organized in 9 groups (5 users per client)
+
+**Features:** 
+- **27 raw features** → expanded to **40 engineered features**
+- Time-series biometrics: `hr_time_series`, `resp_time_series`, `stress_time_series`
+- Daily aggregates: resting HR, min/max HR, respiration during sleep/wake, stress levels
+- **Special values:** -1 (missing), -2 (invalid), null (sensor gaps)
+
+**Challenges:**
+- ⚠️ **Extreme data scarcity**: ~110 samples/client → severe overfitting risk
+- ⚠️ **High noise**: Wearable sensor variability and measurement errors
+- ⚠️ **Client heterogeneity**: Different physiological baselines across users
+- ⚠️ **Validation instability**: Small validation sets (~27 samples/client) → unreliable metrics
+
+---
+
+## 🚀 Experimental Journey
 
 ### Phase 1: Baseline Establishment (exp_001-005)
 **Objective:** Evaluate standard federated models and establish performance baselines
@@ -218,16 +231,7 @@ final_pred = 0.5 × exp_039_pred + 0.5 × exp_031_pred
 - Tested non-equal weights: 60/40, 55/45, 45/55
 - Local validation suggested marginal gains with 60% augmented bias
 - **Decision:** Maintained 50/50 for robustness (validation set too small to trust)
-- Formula: `0.45×RF + 0.30×XGB + 0.25×LGBM`
-
----
-
-### Phase 6: Final Optimization (exp_041) 🏆
-**Winning Strategy:** Ensemble di ensemble con pesi ottimizzati
-
-- **exp_041**: 11.79207 MAE ✅ **BEST SCORE**
-- Formula: `0.5×exp_039 + 0.5×exp_031`
-- Insight: Combinare data augmentation (exp_039) con diversificazione algoritmica (exp_031)
+- exp_042 not submitted (risk of overfitting)
 
 ---
 
