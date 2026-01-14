@@ -5,7 +5,7 @@
 
 ---
 
-## � Table of Contents
+## Table of Contents
 
 - [Abstract](#-abstract)
 - [Problem Statement & Constraints](#-problem-statement--constraints)
