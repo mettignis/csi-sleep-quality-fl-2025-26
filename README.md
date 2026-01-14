@@ -44,7 +44,7 @@
 
 ---
 
-## �📖 Abstract
+## 📖 Abstract
 
 This work investigates sleep quality prediction from wearable-device biometric data under strict federated learning constraints, where data privacy prohibits centralized data aggregation. The challenge is characterized by an extremely small dataset (999 training samples distributed across nine federated clients), leading to significant overfitting in baseline models. 
 
