@@ -423,8 +423,8 @@ prova1/
 
 ```bash
 # Clone repository
-git clone https://github.com/MettiFire/prova1.git
-cd prova1
+git clone https://github.com/mettignis/csi-sleep-quality-fl-2025-26.git
+cd csi-sleep-quality-fl-2025-26
 
 # Create virtual environment
 python -m venv flvenv
